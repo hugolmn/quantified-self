@@ -1,10 +1,14 @@
 import streamlit as st
+import pandas as pd
 
 st.title("Google Fit data analysis")
 
+df = pd.DataFrame()
 
 uploaded_files = st.file_uploader("Upload CSV files", accept_multiple_files=True)
-for uploaded_file in uploaded_files:
-     bytes_data = uploaded_file.read()
-     st.write("filename:", uploaded_file.name)
-     st.write(bytes_data)
+if uploaded_files:
+     df = pd.concat([
+         pd.read_csv(file).assign(start_date=file.name.split('.')[0])
+         for file in uploaded_files
+     ]) 
+     st.dataframe(df)
