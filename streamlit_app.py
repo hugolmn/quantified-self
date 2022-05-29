@@ -1,6 +1,6 @@
-import streamlit
+import streamlit as st
 
-streamlit.title("Google Fit data analysis")
+st.title("Google Fit data analysis")
 
 
 uploaded_files = st.file_uploader("Upload CSV files", accept_multiple_files=True)
