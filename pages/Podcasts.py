@@ -8,6 +8,6 @@ st.title("Podcasts")
 con = connect()
 
 sheet_podcasts = st.secrets['podcasts']
-df_podcasts = pd.read_sql_query(f'SELECT * FROM {sheet_podcasts}', con)
+df_podcasts = pd.read_sql_query(f'SELECT * FROM "{sheet_podcasts}"', con)
 
 st.dataframe(df_podcasts)
