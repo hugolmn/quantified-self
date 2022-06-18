@@ -15,5 +15,5 @@ df_podcasts = pd.read_sql_query(
 )
 
 st.metric(label='Total listening', value=f'{int(df_podcasts.duration.sum())} hours')
-
+st.bar_chart(df_podcasts.groupby(df_podcasts.playbackDate.dt.year).duration.sum())
 st.dataframe(df_podcasts)
