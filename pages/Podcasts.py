@@ -14,4 +14,6 @@ df_podcasts = pd.read_sql_query(
   parse_dates=['playbackDate']
 )
 
+st.metric(label='Total listening', value=int(df_podcasts.duration.sum()))
+
 st.dataframe(df_podcasts)
