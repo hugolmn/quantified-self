@@ -19,5 +19,5 @@ total.metric(label='Total listening', value=f'{int(df_podcasts.duration.sum())} 
 episodes.metric(label='#Episodes', value=len(df_podcasts))
 podcasts.metric(label='#Podcasts', value=df_podcasts.podcast.nunique())
 
-st.bar_chart(df_podcasts.groupby(df_podcasts.playbackDate.dt.year).duration.sum())
+st.bar_chart(df_podcasts.groupby(df_podcasts.playbackDate.dt.year).duration.sum().astype(int))
 st.dataframe(df_podcasts)
