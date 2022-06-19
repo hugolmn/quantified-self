@@ -20,4 +20,6 @@ episodes.metric(label='#Episodes', value=len(df_podcasts))
 podcasts.metric(label='#Podcasts', value=df_podcasts.podcast.nunique())
 
 st.bar_chart(df_podcasts.groupby(df_podcasts.playbackDate.dt.year).duration.sum().astype(int))
-st.dataframe(df_podcasts)
+
+st.header('Last 100 played')
+st.dataframe(df_podcasts.iloc[:100])
