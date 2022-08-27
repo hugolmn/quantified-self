@@ -1,14 +1,11 @@
 import io
-import google.auth
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload
-from oauth2client.service_account import ServiceAccountCredentials
 from google.oauth2 import service_account
 import streamlit as st
 
 scope = ['https://www.googleapis.com/auth/drive.readonly']
-# credentials = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
 credentials = service_account.Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=scope)
 
 
