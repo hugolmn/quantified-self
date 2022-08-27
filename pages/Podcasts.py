@@ -55,12 +55,12 @@ def load_podcast_df():
 
 podcast_df = load_podcast_df()
 
-# total, episodes, podcasts = st.columns(3)
-# total.metric(label='Total listening', value=f'{int(df_podcasts.duration.sum())} hours')
-# episodes.metric(label='#Episodes', value=len(df_podcasts))
-# podcasts.metric(label='#Podcasts', value=df_podcasts.podcast.nunique())
+total, episodes, podcasts = st.columns(3)
+total.metric(label='Total listening', value=f'{int(podcast_df.duration.sum())} hours')
+episodes.metric(label='#Episodes', value=len(podcast_df))
+podcasts.metric(label='#Podcasts', value=podcast_df.podcast.nunique())
 
-st.title('Podcast listening Chart')
+st.subheader('Podcast listening Chart')
 podcast_plot = alt.Chart(podcast_df).mark_bar().encode(
     y=alt.Y('duration', aggregate='sum'),
     x='yearmonth(playbackDate):O',
