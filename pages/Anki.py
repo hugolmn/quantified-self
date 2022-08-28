@@ -16,7 +16,7 @@ def load_anki():
     with open(os.path.join('data', 'anki.db'), 'wb') as anki_file:
         anki_file.write(anki_db.getbuffer())
 
-    con = sqlite3.connect(os.path.join('anki.db'))
+    con = sqlite3.connect(os.path.join('data', 'anki.db'))
     return con
 
 anki_con = load_anki()
