@@ -2,3 +2,4 @@ pandas==1.4.3
 google-api-python-client==2.58.0
 protobuf<4
 sqlalchemy==1.4.40
+sqlalchemy-cockroachdb==1.4.3
