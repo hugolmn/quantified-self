@@ -1,8 +1,12 @@
 import io
+
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload
 from google.oauth2 import service_account
+
+from sqlalchemy import create_engine
+
 import streamlit as st
 
 scope = ['https://www.googleapis.com/auth/drive.readonly']
@@ -57,3 +61,12 @@ def download_file(file_id):
         file = None
 
     return file
+
+def get_cockroachdb_conn(database: str):
+    connexion_string = st.secrets["cockroach_connexion_string"]
+    connexion_string = connexion_string.replace('database_name', database)
+    
+    engine = create_engine(connexion_string)
+    conn = engine.connect()
+
+    return conn
