@@ -1,3 +1,12 @@
 import os
 import streamlit as st
-os.system(f"curl --create-dirs -o $HOME/.postgresql/root.crt -O {st.secrets['get_certificate_cockroachdb']}")
+import pandas as pd
+from utils import get_cockroachdb_conn
+
+# os.system(f"curl --create-dirs -o $HOME/.postgresql/root.crt -O {st.secrets['get_certificate_cockroachdb']}")
+
+conn = get_cockroachdb_conn('garmin')
+df = pd.read_sql('SELECT * FROM stress', conn)
+df = df[df.stress >= 0]
+
+st.line_chart(data=df, x='date', y='stress')
