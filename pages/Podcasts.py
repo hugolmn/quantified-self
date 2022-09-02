@@ -42,7 +42,6 @@ def load_podcast_df():
     seen['playbackDate'] = pd.to_datetime(seen.playbackDate, unit='ms')
     seen.loc[seen.duration.apply(len) == 5, 'duration'] = '00:' + seen.loc[seen.duration.apply(len) == 5, 'duration']
     seen['duration']= pd.to_timedelta(seen.duration)
-    # seen = seen[seen.playbackDate.dt.year >= 2018]
     seen['duration'] = seen.duration / pd.Timedelta('1 hour')
     podcast_df = pd.merge(
         left=podcasts.rename(columns={'name': 'podcast'}),
@@ -63,12 +62,16 @@ def path_to_image_html(path):
 
 @st.cache
 def convert_images_df(input_df):
-    # IMPORTANT: Cache the conversion to prevent computation on every rerun
     return input_df.to_html(escape=False, formatters=dict(icon=path_to_image_html))
 
 podcast_df = load_podcast_df()
 
-st.title('PodcastAddict data')
+st.title('Podcast Addict data')
+
+with st.expander('How it works'):
+    st.markdown("""
+        [Podcast Addict](https://podcastaddict.com/) is a widely used app to listen to podcasts.
+    """)
 
 st.subheader('Podcast listening Chart')
 podcast_plot = alt.Chart(podcast_df).mark_bar().encode(
