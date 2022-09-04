@@ -3,3 +3,7 @@
 __pycache__/*
 data/*
 *credentials.json
+*.crt
+*.ipynb
+*.txt
+*.db
