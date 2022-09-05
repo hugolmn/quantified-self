@@ -72,7 +72,29 @@ def collect_stress_data(garmin_api, conn):
         print(f'Stress data: {len(missing_dates)} new days added.')
     else:
         print('Stress data: already up to date!')
+        
+def collect_hr_data(garmin_api, conn):
+    missing_dates = create_list_missing_dates(conn, 'heart_rate')
+    if not missing_dates.empty:
+        df = pd.concat([
+            pd.DataFrame(garmin_api.get_heart_rates(date.date())['heartRateValues'], columns=['date', 'hr'])
+            for date in missing_dates
+        ])
+        
+        df['date'] = pd.to_datetime(df['date'], unit='ms', utc=True).dt.tz_convert('Europe/Paris')
+        df['hr'] = df.hr.fillna(-1).astype(int)
+        df = df.sort_values(by='date')
 
+        df.to_sql(
+            'heart_rate',
+            conn,
+            if_exists='append',
+            index=False
+        )
+        print(f'Heart rate data: {len(missing_dates)} new days added.')
+    else:
+        print('Heart rate data: already up to date!')
+        
 def collect_hydration_data(garmin_api, conn):
     missing_dates = create_list_missing_dates(conn, 'hydration')
     if not missing_dates.empty:
@@ -102,6 +124,7 @@ def collect_all(event, context):
 
     # Run collectors
     collect_stress_data(garmin_api, conn)
+    collect_hr_data(garmin_api, conn)
     collect_hydration_data(garmin_api, conn)
 
     # close connection
