@@ -21,7 +21,27 @@ This project has multiple goals:
 - Develop skills in cloud technologies (GCP) and web apps (streamlit).
 
 # Data collected
-TODO
+
+## Health data:
+### Google Fit: step history from 2019 until switched to Garmin
+- [ ] Steps
+### Garmin: Venu 2 Plus since Aug 2022
+- [ ] Steps
+- [x] Stress
+- [ ] Heart Rate
+- [ ] Respiration
+- [ ] Activities
+### Intermittent Fasting
+- [ ] [Zero](https://play.google.com/store/apps/details?id=com.zerofasting.zero): an app I used to track my period of fasting, since July 2022
+
+
+## Listening history:
+- [x] [Podcast Addict](https://podcastaddict.com/): Podcast player that I use since 2017.
+- [ ] [Spotify](spotify.com/): I have a subscription since 2017.
+
+## Vocabulary
+- [x] [Anki](https://play.google.com/store/apps/details?id=com.ichi2.anki): a flashcard app that I have been using to learn Mandarin and English vocab for 832 days in a row (and counting!)
 
 # Architecture
+## Diagram
 ![Architecture diagram](docs/diagram/quantified_self.png)
