@@ -24,4 +24,4 @@ This project has multiple goals:
 TODO
 
 # Architecture
-TODO
+![Architecture diagram](docs/diagram/quantified_self.png)
