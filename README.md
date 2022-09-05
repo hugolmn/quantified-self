@@ -1,6 +1,9 @@
 # Quantified Self
-
-## What is Quantified Self ?
+- [What is Quantified Self?](#what-is-quantified-self-)
+- [Why am I doing this?](#why-am-i-doing-this)
+- [Data collected](#data-collected)
+- [Architecture](#architecture)
+## What is Quantified Self?
 
 The quantified self is the use of self-measurement tools and technologies with the aim of improving one's self knowledge. Data can be acquired through several means including:
 - Smart watches
