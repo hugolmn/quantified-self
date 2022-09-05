@@ -31,9 +31,10 @@ This project has multiple goals:
 ### Garmin: Venu 2 Plus since Aug 2022
 - [ ] Steps
 - [x] Stress
-- [ ] Heart Rate
+- [X] Heart Rate
 - [ ] Respiration
 - [ ] Activities
+- [x] Hydration
 ### Intermittent Fasting
 - [ ] [Zero](https://play.google.com/store/apps/details?id=com.zerofasting.zero): an app I used to track my period of fasting, since July 2022.
 
