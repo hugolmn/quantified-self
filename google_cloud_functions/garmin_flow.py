@@ -22,7 +22,7 @@ def get_garmin_api():
     return api
 
 def get_latest_data_point(conn, table):
-    return conn.execute(
+    date_latest_point = conn.execute(
         f"""
         SELECT *
         FROM {table}
@@ -30,13 +30,20 @@ def get_latest_data_point(conn, table):
         LIMIT 1
         """
     ).fetchone()
-
-def create_list_missing_dates(date_latest_point):
-    try:
-        if type(date_latest_point) != datetime.date:
-            date_latest_point = date_latest_point.date()
-    except:
+    
+    if date_latest_point:
+        return date_latest_point[0]
+    return []
+        
+def create_list_missing_dates(conn, table):
+    
+    date_latest_point = get_latest_data_point(conn, table)
+    
+    if not date_latest_point:
         date_latest_point = datetime.date(2022, 8, 26) # First day of Garmin Venu 2 Plus watch
+    elif type(date_latest_point) != datetime.date:
+        date_latest_point = date_latest_point.date()
+            
     dates = pd.date_range(
         start=date_latest_point + datetime.timedelta(days=1), # day after latest point
         end=datetime.datetime.today().date() - datetime.timedelta(days=1), # day before today
@@ -45,8 +52,7 @@ def create_list_missing_dates(date_latest_point):
     return dates
 
 def collect_stress_data(garmin_api, conn):
-    date_latest_point = get_latest_data_point(conn, 'stress')[0]
-    missing_dates = create_list_missing_dates(date_latest_point)
+    missing_dates = create_list_missing_dates(conn, 'stress')
     if not missing_dates.empty:
         df = pd.concat([
             pd.DataFrame(garmin_api.get_stress_data(date.date())['stressValuesArray'], columns=['date', 'stress'])
@@ -68,8 +74,7 @@ def collect_stress_data(garmin_api, conn):
         print('Stress data: already up to date!')
 
 def collect_hydration_data(garmin_api, conn):
-    date_latest_point = get_latest_data_point(conn, 'hydration')[0]
-    missing_dates = create_list_missing_dates(date_latest_point)
+    missing_dates = create_list_missing_dates(conn, 'hydration')
     if not missing_dates.empty:
         df = pd.DataFrame([
             garmin_api.get_hydration_data(date.date())
