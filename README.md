@@ -22,7 +22,7 @@ This project has multiple goals:
 
 # Data collected
 
-## Health data:
+## Health data
 ### Google Fit: step history from 2019 until switched to Garmin
 - [ ] Steps
 ### Garmin: Venu 2 Plus since Aug 2022
@@ -32,15 +32,20 @@ This project has multiple goals:
 - [ ] Respiration
 - [ ] Activities
 ### Intermittent Fasting
-- [ ] [Zero](https://play.google.com/store/apps/details?id=com.zerofasting.zero): an app I used to track my period of fasting, since July 2022
+- [ ] [Zero](https://play.google.com/store/apps/details?id=com.zerofasting.zero): an app I used to track my period of fasting, since July 2022.
 
-
-## Listening history:
+## Listening history
 - [x] [Podcast Addict](https://podcastaddict.com/): Podcast player that I use since 2017.
 - [ ] [Spotify](spotify.com/): I have a subscription since 2017.
 
+## Digital activity
+- [ ] [ActivityWatch](https://activitywatch.net/): tracking my computer and phone usage, since June 2022.
+
 ## Vocabulary
-- [x] [Anki](https://play.google.com/store/apps/details?id=com.ichi2.anki): a flashcard app that I have been using to learn Mandarin and English vocab for 832 days in a row (and counting!)
+- [x] [Anki](https://play.google.com/store/apps/details?id=com.ichi2.anki): a flashcard app that I have been using to learn Mandarin and English vocab for 832 days in a row (and counting!).
+
+## Manual logging
+- [ ] [Loop Habit Tracker](https://play.google.com/store/apps/details?id=org.isoron.uhabits): used to track various non automatable metrics such as coffee, alcohol, cold showers, feeling sick/headache/hot/cold.
 
 # Architecture
 ## Diagram
