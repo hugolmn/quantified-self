@@ -72,7 +72,7 @@ with st.expander('How it works'):
     st.markdown("""
         [Podcast Addict](https://podcastaddict.com/) is a widely used app to listen to podcasts. 
         Automatic backups can be created, consisting mostly of the SQLite database file. This backup is sent to Google Drive using the Autosync app.
-        ![Diagram of the podcast data flow](https://github.com/hugolmn/quantified-self/blob/main/docs/diagram/podcast_data.png)
+        ![Diagram of the podcast data flow](https://raw.githubusercontent.com/hugolmn/quantified-self/main/docs/diagram/podcast_data.png)
     """)
 
 st.subheader('Podcast listening Chart')
