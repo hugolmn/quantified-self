@@ -51,6 +51,32 @@ def create_list_missing_dates(conn, table):
     )
     return dates
 
+def collect_steps_data(garmin_api, conn):
+    missing_dates = create_list_missing_dates(conn, 'steps')
+    if not missing_dates.empty:
+        df = pd.concat([
+            pd.DataFrame(garmin_api.get_steps_data(date.date()))
+            for date in missing_dates
+        ])
+        
+        df = df[['startGMT', 'steps', 'primaryActivityLevel']]
+        df.columns = ['date', 'steps', 'activity_level']
+
+        df['date'] = pd.to_datetime(df.date, utc=True).dt.tz_convert('Europe/Paris')
+
+        df = df.assign(steps=df.steps.astype(int).fillna(0))
+        df = df.sort_values(by='date')
+
+        df.to_sql(
+            'steps',
+            conn,
+            if_exists='append',
+            index=False
+        )
+        print(f'Steps data: {len(missing_dates)} new days added.')
+    else:
+        print('Steps data: already up to date!')
+
 def collect_stress_data(garmin_api, conn):
     missing_dates = create_list_missing_dates(conn, 'stress')
     if not missing_dates.empty:
@@ -126,6 +152,7 @@ def collect_all(event, context):
     collect_stress_data(garmin_api, conn)
     collect_hr_data(garmin_api, conn)
     collect_hydration_data(garmin_api, conn)
+    collect_steps_data(garmin_api, conn)
 
     # close connection
     conn.close()
