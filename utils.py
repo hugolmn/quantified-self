@@ -1,3 +1,4 @@
+import os
 import io
 
 from googleapiclient.discovery import build
@@ -63,9 +64,16 @@ def download_file(file_id):
     return file
 
 def get_cockroachdb_conn(database: str):
+    # Download certificate if not already present
+    certificate_path = os.path.expanduser('~/.postgresql/root.crt')
+    if not os.path.exists(certificate_path):
+        os.system(f"curl --create-dirs -o ~/.postgresql/root.crt -O {st.secrets['get_certificate_cockroachdb']}")
+
+    # Edit connexion string to point to the right database
     connexion_string = st.secrets["cockroach_connexion_string"]
     connexion_string = connexion_string.replace('database_name', database)
-    
+
+    # Connexion to the database   
     engine = create_engine(connexion_string)
     conn = engine.connect()
 
