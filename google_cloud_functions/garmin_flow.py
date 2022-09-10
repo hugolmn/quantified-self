@@ -1,8 +1,9 @@
-import pandas as pd
-import datetime
 import os
+
 from sqlalchemy import create_engine
 from garminconnect import Garmin
+
+from garmin_collectors import *
 
 def get_cockroachdb_conn():
 
@@ -21,126 +22,6 @@ def get_garmin_api():
     api.login()
     return api
 
-def get_latest_data_point(conn, table):
-    date_latest_point = conn.execute(
-        f"""
-        SELECT *
-        FROM {table}
-        ORDER BY date DESC
-        LIMIT 1
-        """
-    ).fetchone()
-    
-    if date_latest_point:
-        return date_latest_point[0]
-    return []
-        
-def create_list_missing_dates(conn, table):
-    
-    date_latest_point = get_latest_data_point(conn, table)
-    
-    if not date_latest_point:
-        date_latest_point = datetime.date(2022, 8, 26) # First day of Garmin Venu 2 Plus watch
-    elif type(date_latest_point) != datetime.date:
-        date_latest_point = date_latest_point.date()
-            
-    dates = pd.date_range(
-        start=date_latest_point + datetime.timedelta(days=1), # day after latest point
-        end=datetime.datetime.today().date() - datetime.timedelta(days=1), # day before today
-        freq='d'
-    )
-    return dates
-
-def collect_steps_data(garmin_api, conn):
-    missing_dates = create_list_missing_dates(conn, 'steps')
-    if not missing_dates.empty:
-        df = pd.concat([
-            pd.DataFrame(garmin_api.get_steps_data(date.date()))
-            for date in missing_dates
-        ])
-        
-        df = df[['startGMT', 'steps', 'primaryActivityLevel']]
-        df.columns = ['date', 'steps', 'activity_level']
-
-        df['date'] = pd.to_datetime(df.date, utc=True).dt.tz_convert('Europe/Paris')
-
-        df = df.assign(steps=df.steps.astype(int).fillna(0))
-        df = df.sort_values(by='date')
-
-        df.to_sql(
-            'steps',
-            conn,
-            if_exists='append',
-            index=False
-        )
-        print(f'Steps data: {len(missing_dates)} new days added.')
-    else:
-        print('Steps data: already up to date!')
-
-def collect_stress_data(garmin_api, conn):
-    missing_dates = create_list_missing_dates(conn, 'stress')
-    if not missing_dates.empty:
-        df = pd.concat([
-            pd.DataFrame(garmin_api.get_stress_data(date.date())['stressValuesArray'], columns=['date', 'stress'])
-            for date in missing_dates
-        ])
-        
-        df['date'] = pd.to_datetime(df['date'], unit='ms', utc=True).dt.tz_convert('Europe/Paris')
-        df['stress'] = df.stress.astype(int)
-        df = df.sort_values(by='date')
-
-        df.to_sql(
-            'stress',
-            conn,
-            if_exists='append',
-            index=False
-        )
-        print(f'Stress data: {len(missing_dates)} new days added.')
-    else:
-        print('Stress data: already up to date!')
-        
-def collect_hr_data(garmin_api, conn):
-    missing_dates = create_list_missing_dates(conn, 'heart_rate')
-    if not missing_dates.empty:
-        df = pd.concat([
-            pd.DataFrame(garmin_api.get_heart_rates(date.date())['heartRateValues'], columns=['date', 'hr'])
-            for date in missing_dates
-        ])
-        
-        df['date'] = pd.to_datetime(df['date'], unit='ms', utc=True).dt.tz_convert('Europe/Paris')
-        df['hr'] = df.hr.fillna(-1).astype(int)
-        df = df.sort_values(by='date')
-
-        df.to_sql(
-            'heart_rate',
-            conn,
-            if_exists='append',
-            index=False
-        )
-        print(f'Heart rate data: {len(missing_dates)} new days added.')
-    else:
-        print('Heart rate data: already up to date!')
-        
-def collect_hydration_data(garmin_api, conn):
-    missing_dates = create_list_missing_dates(conn, 'hydration')
-    if not missing_dates.empty:
-        df = pd.DataFrame([
-            garmin_api.get_hydration_data(date.date())
-            for date in missing_dates
-        ])
-        
-        df = df[['calendarDate', 'valueInML', 'goalInML', 'sweatLossInML']]
-        df.columns = ['date', 'value_in_ml', 'goal_in_ml', 'sweat_loss_in_ml']
-        df.to_sql(
-            'hydration',
-            conn,
-            if_exists='append',
-            index=False
-        )
-        print(f'Hydration data: {len(missing_dates)} new days added.')
-    else:
-        print('Hydration data: already up to date!')
-
 def collect_all(event, context):
     # Get cockroachdb
     engine, conn = get_cockroachdb_conn()    
@@ -149,10 +30,11 @@ def collect_all(event, context):
     garmin_api = get_garmin_api()
 
     # Run collectors
-    collect_stress_data(garmin_api, conn)
-    collect_hr_data(garmin_api, conn)
-    collect_hydration_data(garmin_api, conn)
-    collect_steps_data(garmin_api, conn)
+    StatsCollector(garmin_api, conn).insert_new_data()
+    StepsCollector(garmin_api, conn).insert_new_data()
+    HeartRateCollector(garmin_api, conn).insert_new_data()
+    StressCollector(garmin_api, conn).insert_new_data()
+    HydrationCollector(garmin_api, conn).insert_new_data()
 
     # close connection
     conn.close()
