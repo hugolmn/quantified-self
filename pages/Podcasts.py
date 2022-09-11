@@ -79,7 +79,10 @@ st.subheader('Podcast listening Chart')
 podcast_plot = alt.Chart(podcast_df).mark_bar().encode(
     x=alt.X('yearmonth(playbackDate):O', title='Month'),
     y=alt.Y('duration', aggregate='sum', title='Hours listened'),
-    tooltip=alt.Tooltip('yearmonth(playbackDate)')
+    tooltip=[
+        alt.Tooltip('yearmonth(playbackDate)', title='Month'),
+        alt.Tooltip('sum(duration)', title='hours', format='.0f')
+    ]
 )
 st.altair_chart(podcast_plot, use_container_width=True)
 
