@@ -24,17 +24,18 @@ This project has multiple goals:
 - Develop skills in cloud technologies (GCP) and web apps (streamlit).
 
 # Data collected
-
+Data come from various sources. Ticked boxes correspond to data that can already be accessed (collectors developped).
 ## Health data
 ### Google Fit: step history from 2019 until switched to Garmin
 - [ ] Steps
 ### Garmin: Venu 2 Plus since Aug 2022
-- [ ] Steps
+- [x] Steps
 - [x] Stress
 - [X] Heart Rate
 - [ ] Respiration
 - [ ] Activities
 - [x] Hydration
+- [ ] Daily stats
 ### Intermittent Fasting
 - [ ] [Zero](https://play.google.com/store/apps/details?id=com.zerofasting.zero): an app I used to track my period of fasting, since July 2022.
 
@@ -50,6 +51,7 @@ This project has multiple goals:
 
 ## Manual logging
 - [ ] [Loop Habit Tracker](https://play.google.com/store/apps/details?id=org.isoron.uhabits): used to track various non automatable metrics such as coffee, alcohol, cold showers, feeling sick/headache/hot/cold.
+- [ ] Personal Timeline: used to track various non automatable metrics such as place of residency, workplace, vacations etc.  
 
 # Architecture
 ## From Phone
@@ -73,5 +75,9 @@ Why streamlit?
 - Focus on the logic.
 - Free.
 > Disclaimer: I have no ties with Streamlit, these arguments are solely based on my experience working with it.
-## Diagram
-![Architecture diagram](docs/diagram/quantified_self.png)
+## Diagrams
+### Phone Data Flow
+![Diagram for phone data](docs/diagram/phone_data_flow.png)
+### Garmin Data Flow
+![Diagram for Garmin data](docs/diagram/garmin_data_flow.png)
+
