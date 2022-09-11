@@ -5,9 +5,11 @@ import streamlit as st
 import pandas as pd
 import altair as alt
 
-from utils import get_cockroachdb_conn
+from utils import get_cockroachdb_conn, load_css
 
 st.set_page_config(layout="wide")
+load_css()
+
 conn = get_cockroachdb_conn('garmin')
 
 st.title('Health')
@@ -30,7 +32,7 @@ col1.metric(
     "Weekly RHR",
     f"{weekly_rhr:.1f} bpm",
     delta=f"{weekly_rhr-all_time_rhr:.1f} bpm vs all time",
-    delta_color='inverse'
+    delta_color='inverse',
 )
 col2.metric(
     "Monthly RHR",
@@ -55,7 +57,7 @@ col4.metric(
 col1, col2 = st.columns(2)
 
 # 7 day rolling average + scatterplot
-rhr_scatterplot = alt.Chart(rhr_df).mark_point().encode(
+rhr_scatterplot = alt.Chart(rhr_df).mark_point(color='#F27716').encode(
     x=alt.Y('yearmonthdate(date):T', title='Date'),
     y=alt.Y(
         'resting_heart_rate:Q',
@@ -68,7 +70,7 @@ rhr_scatterplot = alt.Chart(rhr_df).mark_point().encode(
     ]
 ).interactive()
 
-rhr_weekly_rolling_mean_plot = alt.Chart(rhr_df).mark_line().transform_window(
+rhr_weekly_rolling_mean_plot = alt.Chart(rhr_df).mark_line(color='#3B97F3').transform_window(
     rolling_mean='mean(resting_heart_rate)',
     frame=[-7, 0]
 ).encode(
@@ -81,7 +83,7 @@ col1.altair_chart(rhr_scatterplot + rhr_weekly_rolling_mean_plot, use_container_
 rhr_density_all_time = alt.Chart(rhr_df).transform_density(
     'resting_heart_rate',
     as_=['resting_heart_rate', 'density']
-).mark_area().encode(
+).mark_area(color='#3B97F3').encode(
     x=alt.X('resting_heart_rate:Q', title='Resting Heart Rate'),
     y=alt.Y('density:Q', title='Density')
 )
@@ -113,6 +115,7 @@ stress_df_past_week = (stress_df
     .to_frame('duration')
     .reset_index()
 )
+stress_df_past_week['duration'] = stress_df_past_week.duration.div(stress_df_past_week.duration.sum())
 
 col1, col2 = st.columns(2)
 
@@ -128,20 +131,21 @@ stress_donut = alt.Chart(stress_df_past_week).mark_arc(innerRadius=75).encode(
     ),
     tooltip=[
         alt.Tooltip('index', title='Stress level'),
-        alt.Tooltip('duration', title='Duration')
+        alt.Tooltip('duration', title='Duration', format='.0%')
     ]
 )
 
 col1.altair_chart(stress_donut, use_container_width=True)
 
 stress_df_history = stress_df.melt('date', var_name='stress_level', value_name='duration')
+stress_df_history['duration'] = stress_df_history['duration'].div(stress_df_history.groupby('date')['duration'].transform(sum))
 
 stress_df_history_chart = alt.Chart(stress_df_history).mark_area().encode(
     x=alt.X('date:T'),
     y=alt.Y(
         'duration:Q',
         stack='normalize',
-        sort='descending'
+        # sort='descending'
     ),
     color=alt.Color(
         'stress_level:N',
@@ -152,7 +156,12 @@ stress_df_history_chart = alt.Chart(stress_df_history).mark_area().encode(
             reverse=False
         )
     ),
-    order=alt.Order()
+    order=alt.Order(),
+    tooltip=[
+        alt.Tooltip('date:T', title='Date'),
+        alt.Tooltip('stress_level:N', title='Stress level'),
+        alt.Tooltip('duration:Q', title='Duration', format='.0%')
+    ]
 )
 
 col2.altair_chart(stress_df_history_chart, use_container_width=True)
@@ -175,9 +184,11 @@ col1, col2 = st.columns(2)
 calories_plot = alt.Chart(calories_df).mark_bar().encode(
     x=alt.X('yearmonthdate(date):O', title='Date'),
     y=alt.Y('sum(calories):Q', scale=alt.Scale(domainMin=1500, clamp=True)),
-    color='Type',
+    color=alt.Color('Type', scale=alt.Scale(range=['#F27716', '#3B97F3'])),
     tooltip=[
-        alt.Tooltip('calories', title="Total calories")
+        alt.Tooltip('yearmonthdate(date):O', title="Date"),
+        alt.Tooltip('Type:N'),
+        alt.Tooltip('calories', title="Calories"),
     ]
 ).interactive()
 col1.altair_chart(calories_plot, use_container_width=True)

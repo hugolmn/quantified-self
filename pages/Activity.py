@@ -3,9 +3,11 @@ import pandas as pd
 import numpy as np
 import altair as alt
 
-from utils import get_cockroachdb_conn
+from utils import get_cockroachdb_conn, load_css
 
 st.set_page_config(layout="wide")
+load_css()
+
 conn = get_cockroachdb_conn('garmin')
 
 def get_steps_detailed_data(conn):
@@ -35,17 +37,17 @@ col1, col2, col3, col4 = st.columns(4)
 col1.metric(
     "Weekly Average",
     f"{weekly_steps:.0f} steps",
-    delta=f"{weekly_steps-all_time_steps:.0f} bpm vs all time",
+    delta=f"{weekly_steps-all_time_steps:.0f} steps vs all time",
 )
 col2.metric(
     "Monthly Average",
     f"{monthly_steps:.0f} steps",
-    delta=f"{monthly_steps-all_time_steps:.0f} bpm vs all time",
+    delta=f"{monthly_steps-all_time_steps:.0f} steps vs all time",
 )
 col3.metric(
     "Quarterly Average",
     f"{quarterly_steps:.0f} steps",
-    delta=f"{quarterly_steps-all_time_steps:.0f} bpm vs all time",
+    delta=f"{quarterly_steps-all_time_steps:.0f} steps vs all time",
 )
 col4.metric(
     "All Time Average",
@@ -58,7 +60,7 @@ col1, col2 = st.columns(2)
 # 7 day rolling average + scatterplot
 daily_steps = steps_df.groupby(steps_df['date'].dt.date, group_keys=False).sum().reset_index()
 
-steps_scatterplot_daily = alt.Chart(daily_steps).mark_bar().encode(
+steps_scatterplot_daily = alt.Chart(daily_steps).mark_bar(color=st.secrets["theme"]['primaryColor']).encode(
     x=alt.Y('yearmonthdate(date):T', title='Date'),
     y=alt.Y(
         'steps:Q',
@@ -67,7 +69,7 @@ steps_scatterplot_daily = alt.Chart(daily_steps).mark_bar().encode(
     tooltip=['date', 'steps']
 ).interactive()
 
-steps_weekly_rolling_mean_plot = alt.Chart(daily_steps).mark_line(color='chocolate').transform_window(
+steps_weekly_rolling_mean_plot = alt.Chart(daily_steps).mark_line(color=st.secrets["theme"]['secondaryColor']).transform_window(
     rolling_mean='mean(steps)',
     frame=[-7, 0]
 ).encode(
@@ -84,7 +86,16 @@ steps_scatterplot_hourly = alt.Chart(steps_df).mark_line().encode(
         'mean(steps):Q',
         title='Hourly Steps',
     ),
-    color=alt.Color('day_of_week:N', title="Day of week"),
+    color=alt.Color(
+        'day_of_week:N',
+        title="Day of week",
+        scale=alt.Scale(
+            range=[
+                st.secrets["theme"]['primaryColor'],
+                st.secrets["theme"]['secondaryColor']
+            ]
+        ),
+    ),
     tooltip=['hoursminutes(date)']
 ).interactive()
 
@@ -97,11 +108,11 @@ col1, col2 = st.columns(2)
 
 activity_level_chart = alt.Chart(steps_df).mark_bar().encode(
     x=alt.X('yearmonthdate(date)', title='Date'),
-    y=alt.Y('count(activity_level)', stack='normalize'),
-    color='activity_level',
+    y=alt.Y('count(activity_level)', stack='normalize', title='Percentageof day'),
+    color=alt.Color('activity_level:N', title='Activity level'),
     tooltip=[
         alt.Tooltip('yearmonthdate(date)', title='Date'),
-        alt.Tooltip('activity_level', title='Activity Level'),
+        alt.Tooltip('activity_level', title='Activity level'),
     ]
 )
 

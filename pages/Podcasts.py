@@ -6,7 +6,9 @@ import os
 import zipfile
 import altair as alt
 
-from utils import download_file, find_file_id
+from utils import download_file, find_file_id, load_css
+
+load_css()
 
 @st.cache(ttl=60*60*24*2)
 def load_podcast_addict_archive():
@@ -76,7 +78,7 @@ with st.expander('How it works'):
     """)
 
 st.subheader('Podcast listening Chart')
-podcast_plot = alt.Chart(podcast_df).mark_bar().encode(
+podcast_plot = alt.Chart(podcast_df).mark_bar(color=st.secrets["theme"]['primaryColor']).encode(
     x=alt.X('yearmonth(playbackDate):O', title='Month'),
     y=alt.Y('duration', aggregate='sum', title='Hours listened'),
     tooltip=[
