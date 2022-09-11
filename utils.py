@@ -63,11 +63,12 @@ def download_file(file_id):
 
     return file
 
-def get_cockroachdb_conn(database: str):
+
+def get_cockroachdb_conn(database: str): 
     # Download certificate if not already present
-    certificate_path = os.path.expanduser('~/.postgresql/root.crt')
+    certificate_path = os.path.expanduser(os.path.join('~', '.postgresql', 'root.crt'))
     if not os.path.exists(certificate_path):
-        os.system(f"curl --create-dirs -o ~/.postgresql/root.crt -O {st.secrets['get_certificate_cockroachdb']}")
+        os.system(f"curl --create-dirs -o {certificate_path} -O {st.secrets['get_certificate_cockroachdb']}")
 
     # Edit connexion string to point to the right database
     connexion_string = st.secrets["cockroach_connexion_string"]
