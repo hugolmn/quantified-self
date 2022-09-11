@@ -55,7 +55,7 @@ col1, col2 = st.columns(2)
 
 # 7 day rolling average + scatterplot
 rhr_scatterplot = alt.Chart(rhr_df).mark_point().encode(
-    x='yearmonthdate(date):T',
+    x=alt.Y('yearmonthdate(date):T', title='Date'),
     y=alt.Y(
         'resting_heart_rate:Q',
         title='Resting Heart Rate',
@@ -78,7 +78,7 @@ rhr_density_all_time = alt.Chart(rhr_df).transform_density(
     'resting_heart_rate',
     as_=['resting_heart_rate', 'density']
 ).mark_area().encode(
-    x='resting_heart_rate:Q',
+    x=alt.X('resting_heart_rate:Q', title='Resting Heart Rate'),
     y=alt.Y('density:Q', title='Density')
 )
 col2.altair_chart(rhr_density_all_time, use_container_width=True)
