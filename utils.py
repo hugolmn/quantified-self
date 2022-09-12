@@ -1,10 +1,12 @@
 import os
 import io
-
+import pandas as pd
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload
 from google.oauth2 import service_account
+
+import gspread
 
 from sqlalchemy import create_engine
 
@@ -12,7 +14,6 @@ import streamlit as st
 
 scope = ['https://www.googleapis.com/auth/drive.readonly']
 credentials = service_account.Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=scope)
-
 
 def find_file_id(q=""):
     service = build('drive', 'v3', credentials=credentials)
@@ -34,6 +35,7 @@ def find_file_id(q=""):
             break
     return files
 
+# https://developers.google.com/drive/api/guides/manage-downloads
 def download_file(file_id):
     """Downloads a file
     Args:
@@ -48,13 +50,14 @@ def download_file(file_id):
         # create drive api client
         service = build('drive', 'v3', credentials=credentials)
 
-        # pylint: disable=maybe-no-member
         request = service.files().get_media(fileId=file_id)
+
         file = io.BytesIO()
         downloader = MediaIoBaseDownload(file, request)
         done = False
         while done is False:
             status, done = downloader.next_chunk()
+            print('ok')
             print(F'Download {int(status.progress() * 100)}.')
 
     except HttpError as error:
@@ -63,6 +66,11 @@ def download_file(file_id):
 
     return file
 
+def load_gsheet(file_id, sheet_name):
+    gc = gspread.authorize(credentials)
+    sheet = gc.open_by_key(file_id)
+    worksheet = sheet.worksheet(sheet_name)
+    return pd.DataFrame(worksheet.get_all_records())
 
 def get_cockroachdb_conn(database: str): 
     # Download certificate if not already present
@@ -113,6 +121,15 @@ def load_css():
            overflow-wrap: break-word;
            white-space: break-spaces;
            background-color: #3B97F3 !important;
+        }
+
+        # div[class*="stSelectbox"] > div[aria-expanded="trus"] > div {
+        #    overflow-wrap: break-word;
+        #    white-space: break-spaces;
+        #    background-color: #3B97F3 !important;
+        # }
+        .st-dr{
+            border-color: #3B97F3
         }
 
         </style>
