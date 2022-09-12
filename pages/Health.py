@@ -103,6 +103,14 @@ stress_df = pd.read_sql(
     conn
 )
 
+average_stress = pd.read_sql(
+    """
+    SELECT date, average_stress_level FROM stats
+    ORDER BY date DESC
+    """,
+    conn
+)
+
 stress_df.columns = stress_df.columns.str.split('_').str[0]
 
 stress_df_past_week = (stress_df
@@ -134,7 +142,13 @@ stress_donut = alt.Chart(stress_df_past_week).mark_arc(innerRadius=75).encode(
         alt.Tooltip('duration', title='Duration', format='.0%')
     ]
 ).properties(
-    title=alt.TitleParams('Past 7 days', align='center', dy=175),
+    title=alt.TitleParams(
+        'Past 7 days',
+        subtitle=f'{average_stress.average_stress_level.iloc[:7].mean():.0f}',
+        subtitleFontSize=50,
+        align='center',
+        dy=200
+    ),
 )
 
 col1.altair_chart(stress_donut, use_container_width=True)
