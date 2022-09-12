@@ -3,7 +3,10 @@ import pandas as pd
 import streamlit as st
 import altair as alt
 import sqlite3
-from utils import find_file_id, download_file
+from utils import find_file_id, download_file, load_css
+
+st.set_page_config(layout="wide")
+load_css()
 
 @st.cache
 def get_anki_db():

@@ -6,6 +6,7 @@ import datetime
 
 from utils import find_file_id, download_file, load_gsheet, load_css
 
+st.set_page_config(layout="wide")
 load_css()
 
 st.title('Finance')

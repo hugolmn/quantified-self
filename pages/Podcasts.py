@@ -8,6 +8,7 @@ import altair as alt
 
 from utils import download_file, find_file_id, load_css
 
+st.set_page_config(layout="wide")
 load_css()
 
 @st.cache(ttl=60*60*24*2)
