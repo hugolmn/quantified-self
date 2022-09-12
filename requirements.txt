@@ -4,3 +4,4 @@ protobuf<4
 sqlalchemy==1.4.40
 sqlalchemy-cockroachdb==1.4.3
 psycopg2-binary
+gspread
