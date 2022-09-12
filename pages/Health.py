@@ -119,20 +119,24 @@ stress_df_past_week['duration'] = stress_df_past_week.duration.div(stress_df_pas
 
 col1, col2 = st.columns(2)
 
+stress_df_past_week['order'] = stress_df_past_week.index
+
 stress_donut = alt.Chart(stress_df_past_week).mark_arc(innerRadius=75).encode(
     theta=alt.Theta('duration:Q'),
     color=alt.Color(
         'index:N',
         title='Stress level',
         scale=alt.Scale(
+            domain=['rest', 'low', 'medium', 'high'],
             range=['#3B97F3', '#FFB154', '#F27716', '#DE5809'],
         ),
-        sort='descending'
     ),
+    order=alt.Order('order', sort='descending'),
     tooltip=[
         alt.Tooltip('index', title='Stress level'),
         alt.Tooltip('duration', title='Duration', format='.0%')
     ]
+    
 )
 
 col1.altair_chart(stress_donut, use_container_width=True)
