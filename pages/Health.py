@@ -1,6 +1,3 @@
-from inspect import stack
-import os
-from this import d
 import streamlit as st
 import pandas as pd
 import altair as alt
@@ -136,7 +133,8 @@ stress_donut = alt.Chart(stress_df_past_week).mark_arc(innerRadius=75).encode(
         alt.Tooltip('index', title='Stress level'),
         alt.Tooltip('duration', title='Duration', format='.0%')
     ]
-    
+).properties(
+    title=alt.TitleParams('Past 7 days', align='center', dy=175),
 )
 
 col1.altair_chart(stress_donut, use_container_width=True)
