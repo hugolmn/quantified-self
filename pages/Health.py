@@ -89,6 +89,9 @@ col2.altair_chart(rhr_density_all_time, use_container_width=True)
 # Stress charts
 st.header('Stress')
 
+selected_period = st.selectbox('Period', options=['Week', 'Month', 'Year', 'All Time'], index=0)
+n_days = {'Week': 7, 'Month': 30, 'Year': 365, 'All Time': 365*100}[selected_period]
+
 stress_df = pd.read_sql(
     """
     SELECT 
@@ -113,20 +116,20 @@ average_stress = pd.read_sql(
 
 stress_df.columns = stress_df.columns.str.split('_').str[0]
 
-stress_df_past_week = (stress_df
+stress_df_period = (stress_df
     [['rest', 'low', 'medium', 'high']]
-    .iloc[:7]
+    .iloc[:n_days]
     .mean()
     .to_frame('duration')
     .reset_index()
 )
-stress_df_past_week['duration'] = stress_df_past_week.duration.div(stress_df_past_week.duration.sum())
+stress_df_period['duration'] = stress_df_period.duration.div(stress_df_period.duration.sum())
+stress_df_period['order'] = stress_df_period.index
 
 col1, col2 = st.columns(2)
 
-stress_df_past_week['order'] = stress_df_past_week.index
 
-stress_donut = alt.Chart(stress_df_past_week).mark_arc(innerRadius=75).encode(
+stress_donut = alt.Chart(stress_df_period).mark_arc(innerRadius=75).encode(
     theta=alt.Theta('duration:Q'),
     color=alt.Color(
         'index:N',
@@ -143,8 +146,8 @@ stress_donut = alt.Chart(stress_df_past_week).mark_arc(innerRadius=75).encode(
     ]
 ).properties(
     title=alt.TitleParams(
-        'Past 7 days',
-        subtitle=f'{average_stress.average_stress_level.iloc[:7].mean():.0f}',
+        selected_period,
+        subtitle=f'{average_stress.average_stress_level.iloc[:n_days].mean():.0f}',
         subtitleFontSize=50,
         align='center',
         dy=200
@@ -153,7 +156,7 @@ stress_donut = alt.Chart(stress_df_past_week).mark_arc(innerRadius=75).encode(
 
 col1.altair_chart(stress_donut, use_container_width=True)
 
-stress_df_history = stress_df.melt('date', var_name='stress_level', value_name='duration')
+stress_df_history = stress_df.iloc[:n_days].melt('date', var_name='stress_level', value_name='duration')
 stress_df_history['duration'] = stress_df_history['duration'].div(stress_df_history.groupby('date')['duration'].transform(sum))
 
 stress_df_history_chart = alt.Chart(stress_df_history).mark_area().encode(
@@ -161,7 +164,6 @@ stress_df_history_chart = alt.Chart(stress_df_history).mark_area().encode(
     y=alt.Y(
         'duration:Q',
         stack='normalize',
-        # sort='descending'
     ),
     color=alt.Color(
         'stress_level:N',
