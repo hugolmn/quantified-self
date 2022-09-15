@@ -30,7 +30,7 @@ def load_dividends():
     # Remove $ symbom and cast as float
     dividends['Transacted Value'] = dividends['Transacted Value'].str.strip('$').astype(float)
     # Keep rows until end of previous month
-    # dividends = dividends[dividends.Date.dt.date < datetime.datetime.now().date().replace(day=1)]
+    dividends = dividends[dividends.Date.dt.date < datetime.datetime.now().date().replace(day=1)]
     return dividends
 
 dividends = load_dividends()
