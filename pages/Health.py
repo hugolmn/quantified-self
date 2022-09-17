@@ -104,7 +104,7 @@ col2.altair_chart(rhr_histogram, use_container_width=True)
 # Stress charts
 st.header('Stress')
 
-selected_period = st.selectbox('Period', options=['Week', 'Month', 'Year', 'All Time'], index=0)
+selected_period = st.selectbox('Period', options=['Week', 'Month', 'Year', 'All Time'], index=2)
 n_days = {'Week': 7, 'Month': 30, 'Year': 365, 'All Time': 365*100}[selected_period]
 
 stress_df = get_garmin_data(
@@ -150,6 +150,7 @@ stress_donut = alt.Chart(stress_df_period).mark_arc(innerRadius=100).encode(
             domain=['rest', 'low', 'medium', 'high'],
             range=['#3B97F3', '#FFB154', '#F27716', '#DE5809'],
         ),
+        legend=(alt.Legend(orient='none'))
     ),
     order=alt.Order('order', sort='descending'),
     tooltip=[
@@ -197,6 +198,7 @@ stress_df_history_chart = alt.Chart(stress_df_history).mark_area(opacity=0.85).e
             range=['#3B97F3', '#FFB154', '#F27716', '#DE5809'],
             reverse=False
         ),
+        legend=None
     ),
     order=alt.Order(),
     tooltip=[
@@ -225,9 +227,9 @@ average_stress_plot = alt.Chart(
         'legend',
         title='Rolling Mean',
         scale=alt.Scale(
-    #         # domain=(0, 100),
             range=['#FFFFFF', '#FFFFFF'],
-        )
+        ),
+        legend=alt.Legend(orient='bottom-left')
     )
 )
 
