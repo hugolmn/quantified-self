@@ -12,7 +12,7 @@ st.title('Health')
 # Resting heart rate charts
 st.header(f'Resting Heart Rate (RHR)'
 )
-rhr_df = get_garmin_data("""SELECT date, resting_heart_rate FROM stats""")
+rhr_df = get_garmin_data("""SELECT date, resting_heart_rate FROM stats""").copy()
 
 st.write(f'{len(rhr_df)} days of data collected. RHR is calculated using the lowest 30 minute average in a 24 hour period.')
 
@@ -52,7 +52,7 @@ col4.metric(
 col1, col2 = st.columns(2)
 
 # 7 day rolling average + scatterplot
-rhr_scatterplot = alt.Chart(rhr_df).mark_point(color='#F27716').encode(
+rhr_scatterplot = alt.Chart(rhr_df).mark_point(color='#FFFFFF').encode(
     x=alt.Y('yearmonthdate(date):T', title='Date'),
     y=alt.Y(
         'resting_heart_rate:Q',
@@ -65,24 +65,27 @@ rhr_scatterplot = alt.Chart(rhr_df).mark_point(color='#F27716').encode(
     ]
 ).interactive()
 
-rhr_weekly_rolling_mean_plot = alt.Chart(rhr_df).mark_line(color='#3B97F3').transform_window(
-    rolling_mean='mean(resting_heart_rate)',
-    frame=[-7, 0]
-).encode(
-    x='yearmonthdate(date):T',
-    y=alt.Y('rolling_mean:Q', title='')
-)
-col1.altair_chart(rhr_scatterplot + rhr_weekly_rolling_mean_plot, use_container_width=True)
+rhr_df['Weekly Mean'] = rhr_df.resting_heart_rate.rolling(7, min_periods=0, center=False).mean()
+rhr_df['Monthly Mean'] = rhr_df.resting_heart_rate.rolling(30, min_periods=0, center=False).mean()
 
-# # Density plot
-# rhr_density_all_time = alt.Chart(rhr_df).transform_density(
-#     'resting_heart_rate',
-#     as_=['resting_heart_rate', 'density']
-# ).mark_area(color='#3B97F3').encode(
-#     x=alt.X('resting_heart_rate:Q', title='Resting Heart Rate'),
-#     y=alt.Y('density:Q', title='Density')
-# )
-# col2.altair_chart(rhr_density_all_time, use_container_width=True)
+rolling_mean_chart = alt.Chart(
+    rhr_df.drop(columns='resting_heart_rate')
+          .melt('date', var_name='rolling', value_name='resting_heart_rate')
+).mark_line(color='#3B97F3').encode(
+    x=alt.X('date'),
+    y=alt.Y('resting_heart_rate'),
+    color=alt.Color(
+        'rolling:N',
+        title='',
+        scale=alt.Scale(
+            range=[
+                st.secrets["theme"]['primaryColor'],
+                st.secrets["theme"]['secondaryColor']
+            ]
+        ),
+    ),
+)
+col1.altair_chart(rhr_scatterplot + rolling_mean_chart, use_container_width=True)
 
 # Density plot
 rhr_histogram = alt.Chart(rhr_df).mark_bar(color='#3B97F3').encode(
