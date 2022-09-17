@@ -3,30 +3,27 @@ import pandas as pd
 import numpy as np
 import altair as alt
 
-from utils import get_cockroachdb_conn, load_css
+from utils import get_cockroachdb_conn, load_css, get_garmin_data
 
 st.set_page_config(layout="wide")
 load_css()
 
-conn = get_cockroachdb_conn('garmin')
-
-def get_steps_detailed_data(conn):
-    df = pd.read_sql("""SELECT * FROM steps""", conn)
+def get_steps_detailed_data():
+    df = get_garmin_data("""SELECT * FROM steps""")
     df = df.assign(date=pd.to_datetime(df.date, utc=True).dt.tz_convert('Europe/Paris'))
     df['day_of_week'] = np.where(df.date.dt.weekday >= 6, 'weekend', 'weekday')
     return df
 
-def get_steps_daily_data(conn):
-    df = pd.read_sql("""SELECT date, total_steps FROM stats""", conn)
+def get_steps_daily_data():
+    df = get_garmin_data("""SELECT date, total_steps FROM stats""")
     return df
 
 st.title('Activity')
 
 st.header(f'Steps')
-steps_df = get_steps_detailed_data(conn)
-steps_daily_df = get_steps_daily_data(conn)
+steps_df = get_steps_detailed_data()
+steps_daily_df = get_steps_daily_data()
 
-# weekly_steps = 
 weekly_steps = steps_daily_df.total_steps.iloc[-7:].mean()
 monthly_steps = steps_daily_df.total_steps.iloc[-30:].mean()
 quarterly_steps = steps_daily_df.total_steps.iloc[-90:].mean()
@@ -35,23 +32,23 @@ all_time_steps = steps_daily_df.total_steps.mean()
 # RHR metric plots
 col1, col2, col3, col4 = st.columns(4)
 col1.metric(
-    "Weekly Average",
-    f"{weekly_steps:.0f} steps",
-    delta=f"{weekly_steps-all_time_steps:.0f} steps vs all time",
+    "Week",
+    f"{weekly_steps/1000:.1f}k/day",
+    delta=f"{(weekly_steps-all_time_steps)/1000:.1f}k vs all time",
 )
 col2.metric(
-    "Monthly Average",
-    f"{monthly_steps:.0f} steps",
-    delta=f"{monthly_steps-all_time_steps:.0f} steps vs all time",
+    "Month",
+    f"{monthly_steps/1000:.1f}k/day",
+    delta=f"{(monthly_steps-all_time_steps)/1000:.1f}k vs all time",
 )
 col3.metric(
-    "Quarterly Average",
-    f"{quarterly_steps:.0f} steps",
-    delta=f"{quarterly_steps-all_time_steps:.0f} steps vs all time",
+    "Quarter",
+    f"{quarterly_steps/1000:.1f}k/day",
+    delta=f"{(quarterly_steps-all_time_steps)/1000:.1f}k vs all time",
 )
 col4.metric(
-    "All Time Average",
-    f"{all_time_steps:.0f} steps",
+    "All Time",
+    f"{all_time_steps/1000:.1f}k/day",
 )
 
 # Steps plots

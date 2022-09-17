@@ -2,19 +2,17 @@ import streamlit as st
 import pandas as pd
 import altair as alt
 
-from utils import get_cockroachdb_conn, load_css
+from utils import get_cockroachdb_conn, load_css, get_garmin_data
 
 st.set_page_config(layout="wide")
 load_css()
-
-conn = get_cockroachdb_conn('garmin')
 
 st.title('Health')
 
 # Resting heart rate charts
 st.header(f'Resting Heart Rate (RHR)'
 )
-rhr_df = pd.read_sql("""SELECT date, resting_heart_rate FROM stats""", conn)
+rhr_df = get_garmin_data("""SELECT date, resting_heart_rate FROM stats""")
 
 st.write(f'{len(rhr_df)} days of data collected. RHR is calculated using the lowest 30 minute average in a 24 hour period.')
 
@@ -76,15 +74,22 @@ rhr_weekly_rolling_mean_plot = alt.Chart(rhr_df).mark_line(color='#3B97F3').tran
 )
 col1.altair_chart(rhr_scatterplot + rhr_weekly_rolling_mean_plot, use_container_width=True)
 
+# # Density plot
+# rhr_density_all_time = alt.Chart(rhr_df).transform_density(
+#     'resting_heart_rate',
+#     as_=['resting_heart_rate', 'density']
+# ).mark_area(color='#3B97F3').encode(
+#     x=alt.X('resting_heart_rate:Q', title='Resting Heart Rate'),
+#     y=alt.Y('density:Q', title='Density')
+# )
+# col2.altair_chart(rhr_density_all_time, use_container_width=True)
+
 # Density plot
-rhr_density_all_time = alt.Chart(rhr_df).transform_density(
-    'resting_heart_rate',
-    as_=['resting_heart_rate', 'density']
-).mark_area(color='#3B97F3').encode(
-    x=alt.X('resting_heart_rate:Q', title='Resting Heart Rate'),
-    y=alt.Y('density:Q', title='Density')
+rhr_histogram = alt.Chart(rhr_df).mark_bar(color='#3B97F3').encode(
+    x=alt.X('resting_heart_rate:N', title='Resting Heart Rate'),
+    y=alt.Y('count()', title='Count')
 )
-col2.altair_chart(rhr_density_all_time, use_container_width=True)
+col2.altair_chart(rhr_histogram, use_container_width=True)
 
 # Stress charts
 st.header('Stress')
@@ -92,7 +97,7 @@ st.header('Stress')
 selected_period = st.selectbox('Period', options=['Week', 'Month', 'Year', 'All Time'], index=0)
 n_days = {'Week': 7, 'Month': 30, 'Year': 365, 'All Time': 365*100}[selected_period]
 
-stress_df = pd.read_sql(
+stress_df = get_garmin_data(
     """
     SELECT 
         date,
@@ -102,16 +107,14 @@ stress_df = pd.read_sql(
         high_stress_duration
     FROM stats
     ORDER BY date DESC
-    """,
-    conn
+    """
 )
 
-average_stress = pd.read_sql(
+average_stress = get_garmin_data(
     """
     SELECT date, average_stress_level FROM stats
     ORDER BY date DESC
-    """,
-    conn
+    """
 )
 
 stress_df.columns = stress_df.columns.str.split('_').str[0]
@@ -187,17 +190,14 @@ col2.altair_chart(stress_df_history_chart, use_container_width=True)
 # Calories charts
 st.header('Calories')
 
-calories_df = pd.read_sql(
-    """SELECT date, active_kilocalories, bmr_kilocalories FROM stats""",
-    conn
-)
+calories_df = get_garmin_data("""SELECT date, active_kilocalories, bmr_kilocalories FROM stats""")
 calories_df = calories_df.melt(
     'date',
     var_name='Type',
     value_name='calories',
 )
 
-col1, col2 = st.columns(2)
+# col1, col2 = st.columns(2)
 
 calories_plot = alt.Chart(calories_df).mark_bar().encode(
     x=alt.X('yearmonthdate(date):O', title='Date'),
@@ -209,4 +209,4 @@ calories_plot = alt.Chart(calories_df).mark_bar().encode(
         alt.Tooltip('calories', title="Calories"),
     ]
 ).interactive()
-col1.altair_chart(calories_plot, use_container_width=True)
+st.altair_chart(calories_plot, use_container_width=True)
