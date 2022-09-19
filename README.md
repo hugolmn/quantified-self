@@ -27,7 +27,7 @@ This project has multiple goals:
 Data come from various sources. Ticked boxes correspond to data that can already be accessed (collectors developped).
 ## Health data
 ### Google Fit: step history from 2019 until switched to Garmin
-- [ ] Steps
+- [x] Steps
 ### Garmin: Venu 2 Plus since Aug 2022
 - [x] Steps
 - [x] Stress
@@ -35,9 +35,9 @@ Data come from various sources. Ticked boxes correspond to data that can already
 - [ ] Respiration
 - [ ] Activities
 - [x] Hydration
-- [ ] Daily stats
+- [x] Daily stats
 ### Intermittent Fasting
-- [ ] [Zero](https://play.google.com/store/apps/details?id=com.zerofasting.zero): an app I used to track my period of fasting, since July 2022.
+- [x] [Zero](https://play.google.com/store/apps/details?id=com.zerofasting.zero): an app I used to track my period of fasting, since July 2022.
 
 ## Listening history
 - [x] [Podcast Addict](https://podcastaddict.com/): Podcast player that I use since 2017.
