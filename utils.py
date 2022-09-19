@@ -88,7 +88,7 @@ def get_cockroachdb_conn(database: str):
 
     return conn
 
-@st.cache(ttl=60*60*24*1)
+@st.cache(ttl=60*60*12)
 def get_garmin_data(query):
     conn = get_cockroachdb_conn('garmin')
     df = pd.read_sql(query, conn)
