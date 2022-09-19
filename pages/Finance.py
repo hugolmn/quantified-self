@@ -37,7 +37,7 @@ dividends = load_dividends()
 
 st.header('Dividends')
 
-selected_scale = st.selectbox('Scale', options=['Yearly', 'Monthly'], index=0)
+selected_scale = st.selectbox('Scale', options=['Yearly', 'Monthly'], index=1)
 transformation = {'Yearly': 'year', 'Monthly': 'yearmonth'}[selected_scale]
 
 dividends_chart = alt.Chart(dividends).mark_bar(color='#3B97F3').encode(
@@ -67,3 +67,54 @@ if selected_scale == 'Monthly':
 else:
     st.altair_chart(dividends_chart, use_container_width=True)
 
+# dividends_chart = alt.Chart(dividends).mark_bar().encode(
+#     x=alt.X(f'{scale}(Date):O', title='Year'),
+#     y=alt.Y('sum(Transacted Value):Q', title='Total amount', axis=alt.Axis(format='$.0f')),
+#     tooltip=[
+#         alt.Tooltip(f'{scale}(Date):O', title='Year'),
+#         alt.Tooltip('sum(Transacted Value):Q', title='Dividends', format='$.0f'),
+#     ]
+# )
+
+# monthly_dividends = alt.Chart(dividends).mark_bar().encode(
+#     x=alt.X('yearmonth(Date):O', title='Year'),
+#     y=alt.Y('sum(Transacted Value):Q', title='Total amount', axis=alt.Axis(format='$.0f')),
+#     tooltip=[
+#         alt.Tooltip('yearmonth(Date):O', title='Year'),
+#         alt.Tooltip('sum(Transacted Value):Q', title='Dividends', format='$.0f'),
+#     ]
+# )
+
+
+
+
+
+# st.header('Yearly salary')
+# salary_df = pd.DataFrame(data=[
+#         ['2018-09', 10800*13/12, 4238],
+#         ['2018-11', 13344*13/12, 4238],
+#         ['2019-01', 13548*13/12, 4468],
+#         ['2019-09', 15600*13/12, 4468],
+#         ['2020-01', 15780*13/12, 534],
+#         ['2020-09', 20184*13/12, 534],
+#         ['2021-01', 20376*13/12, 5260],
+#         ['2021-09', 37700, 3500],
+#         ['2022-01', 38220, 3500],
+#         ['2022-04', 39520, 3500],
+#         ['2022-09', 42380, 3500],
+#         # ['2023-01', 61000, 0],
+#     ],
+#     columns=['date', 'salary', 'variable']
+# )
+# salary_df = salary_df.assign(date=pd.to_datetime(salary_df.date))
+# salary_df = salary_df.set_index('date').resample('1M').ffill().reset_index()
+# salary_df = salary_df.melt('date', var_name='source', value_name='amount')
+
+# salary_chart = alt.Chart(salary_df).mark_bar().encode(
+#     x=alt.X('yearmonth(date):T', title='Date'),
+#     y=alt.Y('sum(amount):Q'),
+#     color=alt.Color('source:N', title='Source'),
+#     order=alt.Order('sum(amount):Q', sort='descending')
+# )
+
+# st.altair_chart(salary_chart)
