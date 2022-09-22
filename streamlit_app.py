@@ -15,14 +15,17 @@ st.set_page_config(
 st.title('Quantified Self')
 st.markdown('This project aims at collecting, storing and reporting my personal data.')
 
-st.markdown("""
+st.markdown(
+    """
     ### Available pages:
-    - [Activity](/Activity): steps history.
-    - [Anki](/Anki): AnkiDroid revision history.
-    - [Finance](/Finance): dividends collected.
-    - [Health](/Health): resting heart rate, stress level, calories spent.
-    - [Podcasts](/Podcasts): podcast listening history and yearly tops.
-""")
+    - <a href="/Activity" target="_self">Activity</a>: steps history.
+    - <a href="/Anki" target="_self">Anki</a>: AnkiDroid revision history.
+    - <a href="/Finance" target="_self">Finance</a>: dividends collected.
+    - <a href="/Health" target="_self">Health</a>: resting heart rate, stress level, calories spent.
+    - <a href="/Podcasts" target="_self">Podcasts</a>: podcast listening history and yearly tops.
+    """,
+    unsafe_allow_html=True
+)
 
 st.markdown("""
     ### Data sources include:
