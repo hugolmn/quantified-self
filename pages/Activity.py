@@ -53,21 +53,22 @@ daily_steps = (steps_df
 )
 
 steps_scatterplot_daily = alt.Chart(daily_steps).mark_bar(
-    color=st.secrets["theme"]['primaryColor']
+    color=st.secrets["theme"]['primaryColor'],
+    clip=True
 ).encode(
-    x=alt.Y('yearmonthdate(date):T', title='Date'),
+    x=alt.X('yearmonthdate(date):T', title='Date'),
     y=alt.Y(
         'steps:Q',
         title='Daily Steps',
     ),
     tooltip=['date', 'steps']
-).interactive()
+).interactive(bind_y=False)
 
 steps_weekly_rolling_mean_plot = alt.Chart(daily_steps).mark_line(
     color=st.secrets["theme"]['secondaryColor']
 ).transform_window(
     rolling_mean='mean(steps)',
-    frame=[-7, 0]
+    frame=[-15, 15]
 ).encode(
     x='yearmonthdate(date):T',
     y=alt.Y('rolling_mean:Q', title='')
@@ -115,3 +116,15 @@ activity_level_chart = alt.Chart(steps_df.dropna(subset=['activity_level'])).mar
 )
 
 col1.altair_chart(activity_level_chart, use_container_width=True)
+
+
+sedentarity_chart = alt.Chart(steps_df[steps_df.activity_level.isin(['active', 'highlyActive'])]).mark_bar().encode(
+    x=alt.X('yearmonthdate(date)', title='Date'),
+    y=alt.Y('count(activity_level)', title='Percentageof day'),
+    color=alt.Color('activity_level:N', title='Activity level'),
+    tooltip=[
+        alt.Tooltip('yearmonthdate(date)', title='Date'),
+        alt.Tooltip('activity_level', title='Activity level'),
+    ]
+)
+col2.altair_chart(sedentarity_chart, use_container_width=True)
