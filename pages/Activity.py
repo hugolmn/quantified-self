@@ -56,7 +56,16 @@ steps_scatterplot_daily = alt.Chart(daily_steps).mark_bar(
     color=st.secrets["theme"]['primaryColor'],
     clip=True
 ).encode(
-    x=alt.X('yearmonthdate(date):T', title='Date'),
+    x=alt.X(
+        'yearmonthdate(date):T',
+        title='Date',
+        scale=alt.Scale(
+            domain=[
+                daily_steps['date'].iloc[-90].isoformat(),
+                daily_steps['date'].iloc[-1].isoformat(),
+            ]
+        )
+    ),
     y=alt.Y(
         'steps:Q',
         title='Daily Steps',
@@ -64,14 +73,24 @@ steps_scatterplot_daily = alt.Chart(daily_steps).mark_bar(
     tooltip=['date', 'steps']
 ).interactive(bind_y=False)
 
-steps_weekly_rolling_mean_plot = alt.Chart(daily_steps).mark_line(
+steps_weekly_rolling_mean_plot = alt.Chart(
+    daily_steps.assign(legend='30-day average')
+).mark_line(
     color=st.secrets["theme"]['secondaryColor']
 ).transform_window(
     rolling_mean='mean(steps)',
-    frame=[-15, 15]
+    frame=[-15, -15]
 ).encode(
-    x='yearmonthdate(date):T',
-    y=alt.Y('rolling_mean:Q', title='')
+    x=alt.X('yearmonthdate(date):T'),
+    y=alt.Y('rolling_mean:Q', title=''),
+    color=alt.Color(
+        'legend',
+        title='',
+        scale=alt.Scale(
+            range=[st.secrets["theme"]['secondaryColor']]*2
+        ),
+        legend=alt.Legend(orient='top-right')
+    )
 )
 
 col1.altair_chart(
