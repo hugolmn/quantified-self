@@ -30,7 +30,7 @@ cards = pd.read_sql('SELECT * FROM cards', anki_con)
 notes = pd.read_sql('SELECT * FROM notes', anki_con)
 # Loading revlog
 revlog = pd.read_sql('SELECT * FROM revlog', anki_con)
-revlog['id'] = pd.to_datetime(revlog.id, unit='ms')
+revlog['id'] = pd.to_datetime(revlog.id, unit='ms', utc=True).dt.tz_convert('Europe/Paris')
 # Loading decks
 decks = pd.read_json(pd.read_sql('SELECT * FROM col', anki_con).decks[0]).T
 
@@ -45,6 +45,11 @@ hsk_revlog = revlog[revlog.cid.isin(hsk_cards.cid)]
 hsk_df = pd.merge(left=hsk_cards, right=hsk_notes, on='nid')
 hsk_df = pd.merge(left=hsk_df, right=hsk_revlog, on='cid')
 
+history_plot = alt.Chart(hsk_df[['id']]).mark_bar(color=st.secrets["theme"]['primaryColor']).encode(
+    x='yearmonthdate(id):T',
+    y='count():Q'
+)
+st.altair_chart(history_plot, use_container_width=True)
 
 cumulative_hsk = hsk_df.drop_duplicates(subset=['cid'])
 cumulative_hsk = cumulative_hsk.assign(cumcount=cumulative_hsk.sort_values(by='id').groupby('HSK').cumcount())
