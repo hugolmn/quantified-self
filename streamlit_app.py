@@ -13,14 +13,23 @@ st.set_page_config(
  )
 
 st.title('Quantified Self')
-st.markdown('This project aims at collecting, aggegating and reporting my personal data.')
+st.markdown('This project aims at collecting, storing and reporting my personal data.')
+
+st.markdown("""
+    ### Available pages:
+    - [Activity](/Activity): steps history.
+    - [Anki](/Anki): AnkiDroid revision history.
+    - [Finance](/Finance): dividends collected.
+    - [Health](/Health): resting heart rate, stress level, calories spent.
+    - [Podcasts](/Podcasts): podcast listening history and yearly tops.
+""")
 
 st.markdown("""
     ### Data sources include:
-    - <a href="/Anki" target="_self">AnkiDroid</a> : an app to learn vocabulary through flashcards.
-    - Spotify : listening history.
-    - Garmin : biometric data collected through my watch.
-    - <a href="/Podcasts" target="_self">Podcast Addict</a> : a podcast player I use since 2017.
+    - AnkiDroid: an app to learn vocabulary through flashcards.
+    - Spotify: listening history.
+    - Garmin: biometric data collected through my watch.
+    - Podcast Addict: a podcast player I use since 2017.
     - Zero : an intermittent fasting tracker.
     """,
     unsafe_allow_html=True
