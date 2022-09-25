@@ -20,6 +20,7 @@ st.markdown(
     ### Available pages:
     - <a href="/Activity" target="_self">Activity</a>: steps history.
     - <a href="/Anki" target="_self">Anki</a>: AnkiDroid revision history.
+    - <a href="/Fasting" target="_self">Fasting</a>: fasting history and analysis.
     - <a href="/Finance" target="_self">Finance</a>: dividends collected.
     - <a href="/Health" target="_self">Health</a>: resting heart rate, stress level, calories spent.
     - <a href="/Podcasts" target="_self">Podcasts</a>: podcast listening history and yearly tops.
