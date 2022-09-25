@@ -26,11 +26,15 @@ class GarminCollector(ABC):
 
     def create_list_missing_dates(self):
         date_latest_point = self.get_latest_data_point(self.conn, self.table)
-        if (not date_latest_point) or (date_latest_point < datetime.date(2022, 8, 26)):
+        
+        if (not date_latest_point):
             date_latest_point = datetime.date(2022, 8, 26) # First day of Garmin Venu 2 Plus watch
         elif type(date_latest_point) != datetime.date:
             date_latest_point = date_latest_point.date()
-                
+        
+        if date_latest_point < datetime.date(2022, 8, 26):
+            date_latest_point = datetime.date(2022, 8, 26)
+
         dates = pd.date_range(
             start=date_latest_point + datetime.timedelta(days=1), # day after latest point
             end=datetime.datetime.today().date() - datetime.timedelta(days=3), # 3 days before today
