@@ -67,7 +67,7 @@ rhr_scatterplot = alt.Chart(rhr_df).mark_point(color='#FFFFFF').encode(
         alt.Tooltip('date', title='Date'),
         alt.Tooltip('resting_heart_rate', title='RHR')
     ]
-).interactive()
+).interactive(bind_y=False)
 
 rhr_df['Weekly Mean'] = rhr_df.resting_heart_rate.rolling(7, min_periods=0, center=False).mean()
 rhr_df['Monthly Mean'] = rhr_df.resting_heart_rate.rolling(30, min_periods=0, center=False).mean()
