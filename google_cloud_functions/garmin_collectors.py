@@ -221,6 +221,11 @@ class SleepCollector(GarminCollector):
             'avgSleepStress',
         ]]
 
+        df = df.rename(columns={'calendarDate': 'date'})
+        df = df.assign(date=pd.to_datetime(df['date']).dt.date)
+        df['sleepStartTimestampGMT'] = pd.to_datetime(df['sleepStartTimestampGMT'], unit='ms', utc=True).dt.tz_convert('Europe/Paris')
+        df['sleepEndTimestampGMT'] = pd.to_datetime(df['sleepEndTimestampGMT'], unit='ms', utc=True).dt.tz_convert('Europe/Paris')
+
         df.columns = [
             'date',
             'sleep_start',
@@ -241,5 +246,4 @@ class SleepCollector(GarminCollector):
             'avg_sleep_stress',
         ]
 
-        df['date'] = pd.to_datetime(df['date'], unit='ms', utc=True).dt.tz_convert('Europe/Paris')
         return df
