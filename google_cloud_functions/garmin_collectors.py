@@ -189,3 +189,57 @@ class HydrationCollector(GarminCollector):
         df = df[['calendarDate', 'valueInML', 'goalInML', 'sweatLossInML']]
         df.columns = ['date', 'value_in_ml', 'goal_in_ml', 'sweat_loss_in_ml']
         return df
+
+class SleepCollector(GarminCollector):
+
+    def __init__(self, garmin_api, conn):
+        super().__init__(garmin_api, conn, 'sleep')
+
+    def collect_data(self, dates):
+        df = pd.DataFrame([
+            self.garmin_api.get_sleep_data(date.date())['dailySleepDTO']
+            for date in dates
+        ])
+        
+        df = df[[
+            'calendarDate',
+            'sleepStartTimestampGMT',
+            'sleepEndTimestampGMT',
+            'sleepTimeSeconds',
+            'deepSleepSeconds',
+            'lightSleepSeconds',
+            'remSleepSeconds',
+            'awakeSleepSeconds',
+            'averageSpO2Value',
+            'lowestSpO2Value',
+            'highestSpO2Value',
+            'averageSpO2HRSleep',
+            'averageRespirationValue',
+            'lowestRespirationValue',
+            'highestRespirationValue',
+            'awakeCount',
+            'avgSleepStress',
+        ]]
+
+        df.columns = [
+            'date',
+            'sleep_start',
+            'sleep_end',
+            'sleep_time_seconds',
+            'deep_sleep_seconds',
+            'light_sleep_seconds',
+            'rem_sleep_seconds',
+            'awake_sleep_seconds',
+            'average_spo2',
+            'lowest_spo2',
+            'highest_spo2',
+            'average_hr_sleep',
+            'average_respiration',
+            'lowest_respiration',
+            'highest_respiration',
+            'awake_count',
+            'avg_sleep_stress',
+        ]
+
+        df['date'] = pd.to_datetime(df['date'], unit='ms', utc=True).dt.tz_convert('Europe/Paris')
+        return df
