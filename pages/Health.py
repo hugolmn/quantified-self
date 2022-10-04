@@ -182,7 +182,7 @@ stress_df_history['duration'] = (stress_df_history
     .div(stress_df_history.groupby('date')['duration'].transform(sum))
 )
 
-stress_df_history_chart = alt.Chart(stress_df_history).mark_area(opacity=0.85).encode(
+stress_df_history_chart = alt.Chart(stress_df_history).mark_area(opacity=0.85, interpolate='step').encode(
     x=alt.X('date:T'),
     y=alt.Y(
         'duration:Q',
