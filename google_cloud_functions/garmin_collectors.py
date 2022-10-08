@@ -254,18 +254,23 @@ class SleepLevelsCollector(GarminCollector):
         super().__init__(garmin_api, conn, 'sleep_levels')
 
     def collect_data(self, dates):
-        df = pd.DataFrame([
-            self.garmin_api.get_sleep_data(date.date())['sleepLevels']
+        df = pd.concat([
+            pd.DataFrame(self.garmin_api.get_sleep_data(date)['sleepLevels']).assign(date=date)
             for date in dates
         ])
         
-        df['startGMT'] = pd.to_datetime(df['startGMT'], unit='ms', utc=True).dt.tz_convert('Europe/Paris')
-        df['endGMT'] = pd.to_datetime(df['endGMT'], unit='ms', utc=True).dt.tz_convert('Europe/Paris')
-        df = df.assign(activityLevel=df.activityLevel.astype(int))
-        df.columns = [
+        df['date'] = pd.to_datetime(df.date)
+        df['level_start'] = pd.to_datetime(df['startGMT'], utc=True).dt.tz_convert('Europe/Paris')
+        df['level_end'] = pd.to_datetime(df['endGMT'], utc=True).dt.tz_convert('Europe/Paris')
+        df = df.assign(
+            date=df.level_end.dt.date,
+            activity_level=df.activityLevel.astype(int)
+        )
+        df = df[[
+            'date',
             'level_start',
             'level_end',
             'activity_level',
-        ]
+        ]]
 
         return df
