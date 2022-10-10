@@ -196,8 +196,8 @@ class SleepCollector(GarminCollector):
         super().__init__(garmin_api, conn, 'sleep')
 
     def collect_data(self, dates):
-        df = pd.DataFrame([
-            self.garmin_api.get_sleep_data(date.date())['dailySleepDTO']
+        df = pd.concat([
+            pd.json_normalize(self.garmin_api.get_sleep_data(date.date())['dailySleepDTO'])
             for date in dates
         ])
         
@@ -219,6 +219,7 @@ class SleepCollector(GarminCollector):
             'highestRespirationValue',
             'awakeCount',
             'avgSleepStress',
+            'sleepScores.overall.value'
         ]]
 
         df = df.rename(columns={'calendarDate': 'date'})
@@ -244,6 +245,7 @@ class SleepCollector(GarminCollector):
             'highest_respiration',
             'awake_count',
             'avg_sleep_stress',
+            'sleep_score'
         ]
 
         return df
