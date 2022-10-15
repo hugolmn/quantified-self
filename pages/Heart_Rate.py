@@ -3,12 +3,14 @@ Heart rate page.
 """
 import streamlit as st
 import altair as alt
+import numpy as np
+import seaborn as sns
 from utils import load_css, get_garmin_data
 
 st.set_page_config(layout="wide")
 load_css()
 
-st.title('Health')
+st.title('Heart Rate')
 
 # Resting heart rate charts
 st.header(f'Resting Heart Rate (RHR)')
@@ -98,3 +100,77 @@ rhr_histogram = alt.Chart(rhr_df).mark_bar(color='#3B97F3').encode(
 )
 col2.altair_chart(rhr_histogram, use_container_width=True)
 
+st.header('Heart Rate')
+hr_df = get_garmin_data("""SELECT date, hr FROM heart_rate WHERE hr > 0""").copy()
+
+st.altair_chart(
+    alt.Chart(
+        hr_df.groupby(hr_df.date.dt.date)
+             .hr
+             .quantile(q=np.arange(0, 1.05, .05))
+             .reset_index()
+    ).mark_line().encode(
+        x='date:T',
+        y='hr:Q',
+        color='level_1'
+    )
+)
+
+percentile_hr = hr_df.groupby(hr_df.date.dt.date).hr.quantile(q=np.arange(0, 1.1, .1)).unstack()
+percentile_hr.columns = [f"{decile*100:.0f}-{decile*100+10:.0f}%" for decile in percentile_hr.columns]
+
+percentile_hr = percentile_hr.reset_index()
+palette = sns.color_palette("vlag", 10).as_hex()
+scale = alt.Scale(domain=percentile_hr.columns[1:-1].tolist(), range=palette)
+
+# Create layers for chart
+def make_layer(percentile_hr, col1, col2):
+    return alt.Chart(percentile_hr.assign(color=col1)).mark_area().encode(
+        x=alt.X('date:T', title='', axis=alt.Axis(format='%Y')),
+    ).encode(
+        y=alt.Y(
+            f"{col1}:Q",
+            title='Stock Price',
+            axis=alt.Axis(format='.0f'),
+            scale=alt.Scale(zero=False)
+        ),
+        y2=alt.Y2(
+            f"{col2}:Q",
+            title='Stock Price'
+        ),
+        color=alt.Color(
+            f"color:N",
+            # title=f"""{ticker} {period} Yield Percentile. Current Yield: {
+            #     df.iloc[-1].DividendYield:.2%} (Top {
+            #     1 - df.DividendYield.rank(pct=True).iloc[-1]:.0%})""",
+            scale=scale,
+            legend=alt.Legend(
+                orient='top',
+                titleFontSize=30,
+                labelFontSize=20,
+                titleLimit=0
+            )
+        ),
+        opacity=alt.value(0.8)
+    )
+
+layers=[]
+for col1, col2 in zip(percentile_hr.columns[1:-1], percentile_hr.columns[2:]):
+    layers.append(make_layer(percentile_hr, col1, col2))
+
+chart = alt.layer(
+    *layers
+).properties(
+    width=1200,
+    height=675
+).configure(
+    font='Lato'
+).configure_axisY(
+    labelFontSize=25,
+    titleFontSize=20
+).configure_axisX(
+    labelAngle=-45,
+    labelFontSize=25
+)
+
+st.altair_chart(chart)
