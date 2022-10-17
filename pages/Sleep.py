@@ -41,6 +41,30 @@ def get_sleep_levels_data():
 
 st.title('Sleep')
 
+sleep = get_sleep_data()
+
+chart = alt.Chart(sleep).mark_point().encode(
+    x=alt.X(
+        'sleep_time_seconds:Q',
+        scale=alt.Scale(zero=False)
+    ),
+    y=alt.Y(
+        'avg_sleep_stress:Q',
+        scale=alt.Scale(zero=False)
+    ),
+    color=alt.Color(
+        'sleep_score:Q',
+        scale=alt.Scale(scheme='viridis'),
+    ),
+    tooltip=[
+        alt.Tooltip('date:T'),
+        alt.Tooltip('sleep_time_seconds:Q'),
+        alt.Tooltip('avg_sleep_stress:Q'),
+    ]
+).interactive(bind_y=False, bind_x=False)
+
+st.altair_chart(chart, use_container_width=True)
+
 st.header('Sleep activity levels')
 sleep_levels = get_sleep_levels_data()
 
