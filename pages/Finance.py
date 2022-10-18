@@ -5,7 +5,7 @@ import altair as alt
 import datetime
 
 from utils import find_file_id, download_file, load_gsheet, load_css
-
+alt.themes.enable("streamlit")
 st.set_page_config(layout="wide")
 load_css()
 

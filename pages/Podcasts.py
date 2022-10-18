@@ -7,7 +7,7 @@ import zipfile
 import altair as alt
 
 from utils import download_file, find_file_id, load_css
-
+alt.themes.enable("streamlit")
 st.set_page_config(layout="wide")
 load_css()
 

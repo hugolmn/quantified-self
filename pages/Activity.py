@@ -5,11 +5,10 @@ import altair as alt
 import datetime
 
 from utils import load_css, get_garmin_data
-
+alt.themes.enable("streamlit")
 st.set_page_config(layout="wide")
 load_css()
 
-@st.cache(ttl=24*60*60)
 def get_steps_detailed_data():
     df = get_garmin_data("""SELECT * FROM steps""")
     df = df.assign(date=pd.to_datetime(df.date, utc=True).dt.tz_convert('Europe/Paris'))

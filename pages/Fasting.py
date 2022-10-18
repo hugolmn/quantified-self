@@ -5,7 +5,7 @@ import altair as alt
 import io
 import datetime
 from utils import find_file_id, download_file, get_garmin_data, load_css
-
+alt.themes.enable("streamlit")
 st.set_page_config(layout="wide")
 load_css()
 

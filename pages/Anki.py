@@ -4,11 +4,11 @@ import streamlit as st
 import altair as alt
 import sqlite3
 from utils import find_file_id, download_file, load_css
-
+alt.themes.enable("streamlit")
 st.set_page_config(layout="wide")
 load_css()
 
-@st.cache
+@st.cache(ttl=60*60*12)
 def get_anki_db():
     file_id = find_file_id("name contains 'collection.anki2'")[0]['id']
     file = download_file(file_id=file_id)
@@ -44,6 +44,10 @@ hsk_revlog = revlog[revlog.cid.isin(hsk_cards.cid)]
 
 hsk_df = pd.merge(left=hsk_cards, right=hsk_notes, on='nid')
 hsk_df = pd.merge(left=hsk_df, right=hsk_revlog, on='cid')
+
+# Display metrics
+
+
 
 history_plot = alt.Chart(hsk_df[['id']]).mark_bar(color=st.secrets["theme"]['primaryColor']).encode(
     x='yearmonthdate(id):T',

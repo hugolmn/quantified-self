@@ -6,7 +6,7 @@ import altair as alt
 import numpy as np
 import seaborn as sns
 from utils import load_css, get_garmin_data
-
+alt.themes.enable("streamlit")
 st.set_page_config(layout="wide")
 load_css()
 
