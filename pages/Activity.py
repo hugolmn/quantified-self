@@ -50,6 +50,7 @@ daily_steps = (steps_df
     .sum()
     .reset_index()
 )
+daily_steps['date'] = pd.to_datetime(daily_steps.date)
 
 steps_scatterplot_daily = alt.Chart(daily_steps).mark_bar(
     color=st.secrets["theme"]['primaryColor'],
@@ -58,12 +59,12 @@ steps_scatterplot_daily = alt.Chart(daily_steps).mark_bar(
     x=alt.X(
         'yearmonthdate(date):T',
         title='Date',
-        scale=alt.Scale(
-            domain=[
-                daily_steps['date'].iloc[-90].isoformat(),
-                daily_steps['date'].iloc[-1].isoformat(),
-            ]
-        )
+        # scale=alt.Scale(
+        #     domain=[
+        #         daily_steps['date'].iloc[-90].isoformat(),
+        #         daily_steps['date'].iloc[-1].isoformat(),
+        #     ]
+        # )
     ),
     y=alt.Y(
         'steps:Q',
