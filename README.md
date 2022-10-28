@@ -3,6 +3,7 @@
 - [Why am I doing this?](#why-am-i-doing-this)
 - [Data collected](#data-collected)
 - [Architecture](#architecture)
+
 ## What is Quantified Self?
 
 The quantified self is the use of self-measurement tools and technologies with the aim of improving one's self knowledge. Data can be acquired through several means including:
@@ -36,12 +37,17 @@ Data come from various sources. Ticked boxes correspond to data that can already
 - [ ] Activities
 - [x] Hydration
 - [x] Daily stats
+- [x] Sleep
 ### Intermittent Fasting
 - [x] [Zero](https://play.google.com/store/apps/details?id=com.zerofasting.zero): an app I used to track my period of fasting, since July 2022.
 
 ## Listening history
 - [x] [Podcast Addict](https://podcastaddict.com/): Podcast player that I use since 2017.
 - [ ] [Spotify](spotify.com/): I have a subscription since 2017.
+
+## Finance
+- [x] [My Stock Portfolio](https://play.google.com/store/apps/details?id=co.peeksoft.stocks&hl=en&gl=US): to track my stock investments.
+
 
 ## Digital activity
 - [ ] [ActivityWatch](https://activitywatch.net/): tracking my computer and phone usage, since June 2022.
