@@ -4,7 +4,7 @@ Body stress page.
 import streamlit as st
 import altair as alt
 from utils import load_css, get_garmin_data
-
+alt.themes.enable('default')
 st.set_page_config(layout="wide")
 load_css()
 
@@ -59,7 +59,7 @@ stress_donut = alt.Chart(stress_df_period).mark_arc(innerRadius=100).encode(
             domain=['rest', 'low', 'medium', 'high'],
             range=['#3B97F3', '#FFB154', '#F27716', '#DE5809'],
         ),
-        legend=(alt.Legend(orient='none'))
+        # legend=(alt.Legend(orient='none'))
     ),
     order=alt.Order('order', sort='descending'),
     tooltip=[
@@ -71,8 +71,10 @@ stress_donut = alt.Chart(stress_df_period).mark_arc(innerRadius=100).encode(
         selected_period,
         subtitle=f'{average_stress.average_stress_level.iloc[-n_days:].mean():.0f}',
         subtitleFontSize=50,
-        align='center',
-        dy=200
+        color='white',
+        # align='center',
+        # dy=225,
+        # dx=225
     ),
 )
 
