@@ -1,4 +1,4 @@
-from json import load
+import io
 import streamlit as st
 import pandas as pd
 import altair as alt
@@ -11,41 +11,42 @@ load_css()
 
 st.title('Finance')
 
-@st.cache(ttl=60*60*24*2)
-def load_cto_data():
-    file_id = find_file_id("name contains 'CTO'")[0]['id']
-    return load_gsheet(file_id, 'Transactions')
+@st.cache(ttl=60*60*24*7)
+def load_dividend_data():
+    file_id = find_file_id("name contains 'MSP'")[0]['id']
+    csv = download_file(file_id)
 
-def load_dividends():
-    dividends = load_cto_data()
-    # Select relevant columns
-    dividends = dividends[['Date', 'Type', 'Stock', 'Transacted Value']]
-    # Keep dividends only
-    dividends = dividends[dividends.Type == 'Div']
-    # Parse date column
-    # dividends['Date'] = pd.to_datetime(dividends.Date).dt.date
-    dividends['Date'] = pd.to_datetime(dividends.Date)
-    # Sort by date
-    dividends = dividends.sort_values(by='Date', ascending=False)
-    # Remove $ symbom and cast as float
-    dividends['Transacted Value'] = dividends['Transacted Value'].str.strip('$').astype(float)
-    # Keep rows until end of previous month
-    dividends = dividends[dividends.Date.dt.date < datetime.datetime.now().date().replace(day=1)]
-    return dividends
+    df = pd.read_csv(
+        io.StringIO(
+            csv.getvalue().decode('utf-8')
+        )
+    )
 
-dividends = load_dividends()
+    df = df.dropna(subset=['Transaction Date'])
+    df = df[df.Type == 'Dividend']
+    df = df[df.Portfolio == 'CTO']
+
+    df['Date'] = pd.to_datetime(df['Transaction Date'].str.split().str[0])
+    df['Dividends'] = df['Shares Owned']
+
+    df = df[['Symbol', 'Name', 'Date', 'Dividends']]
+
+    df = df[df.Date.dt.date < datetime.datetime.now().date().replace(day=1)]
+    df = df.sort_values(by='Date')
+    return df
 
 st.header('Dividends')
+dividends = load_dividend_data()
 
 selected_scale = st.selectbox('Scale', options=['Yearly', 'Monthly'], index=1)
 transformation = {'Yearly': 'year', 'Monthly': 'yearmonth'}[selected_scale]
 
 dividends_chart = alt.Chart(dividends).mark_bar(color='#3B97F3').encode(
     x=alt.X(f'{transformation}(Date):O', title='Year'),
-    y=alt.Y('sum(Transacted Value):Q', title=f'{selected_scale} amount', axis=alt.Axis(format='$.0f')),
+    y=alt.Y('sum(Dividends):Q', title=f'{selected_scale} dividend', axis=alt.Axis(format='$.0f')),
     tooltip=[
         alt.Tooltip(f'{transformation}(Date):O', title='Date'),
-        alt.Tooltip('sum(Transacted Value):Q', title='Dividends', format='$.0f'),
+        alt.Tooltip('sum(Dividends):Q', title='Dividends', format='$.0f'),
     ]
 )
 
@@ -55,66 +56,97 @@ if selected_scale == 'Monthly':
     ).mark_line(
         color='#F27716'
     ).transform_window(
-        rolling_mean='mean(Transacted Value)',
+        rolling_mean='mean(Dividends)',
         frame=[-11, 0] # 12 month average
     ).encode(
         x=alt.X(f'{transformation}(Date):O'),
-        y=alt.Y('rolling_mean:Q', title=''),
+        y=alt.Y('rolling_mean:Q', title=f'TTM dividend', axis=alt.Axis(format='$.0f')),
     )
-
     st.altair_chart(dividends_chart + dividends_trend, use_container_width=True)
 
 else:
     st.altair_chart(dividends_chart, use_container_width=True)
 
-# dividends_chart = alt.Chart(dividends).mark_bar().encode(
-#     x=alt.X(f'{scale}(Date):O', title='Year'),
-#     y=alt.Y('sum(Transacted Value):Q', title='Total amount', axis=alt.Axis(format='$.0f')),
-#     tooltip=[
-#         alt.Tooltip(f'{scale}(Date):O', title='Year'),
-#         alt.Tooltip('sum(Transacted Value):Q', title='Dividends', format='$.0f'),
-#     ]
-# )
+years = (dividends
+    .Date
+    .dt.year
+    .sort_values(ascending=False)
+    .unique()
+    .astype(str)
+    .tolist()
+)
 
-# monthly_dividends = alt.Chart(dividends).mark_bar().encode(
-#     x=alt.X('yearmonth(Date):O', title='Year'),
-#     y=alt.Y('sum(Transacted Value):Q', title='Total amount', axis=alt.Axis(format='$.0f')),
-#     tooltip=[
-#         alt.Tooltip('yearmonth(Date):O', title='Year'),
-#         alt.Tooltip('sum(Transacted Value):Q', title='Dividends', format='$.0f'),
-#     ]
-# )
+tabs = st.tabs(['All Time'] + years)
 
+with tabs[0]:
 
+    pt = (dividends
+        .assign(Year=dividends.Date.dt.year) # Get year
+        .pivot_table(
+            index='Symbol',
+            columns='Year',
+            values=['Dividends'],
+            aggfunc='sum',
+            margins=True
+        )
+        .iloc[:-1] # Drop "All" row
+        .droplevel(0, axis=1) # Drop multiIndex column
+        .sort_values(by='All', ascending=False) # Sort by All time dividends
+        .iloc[:20] # Keep 20 top rows
+        .drop(columns=['All']) # Drop "All" column
+        .stack() # Stack years
+        .to_frame('Dividends') # Convert to a single column dataframe
+        .reset_index()
+    )
 
+    dividends_per_stock = alt.Chart(pt).mark_bar(color='#3B97F3').encode(
+        x=alt.X('sum(Dividends)', title='Dividends', axis=alt.Axis(format='$.0f')),
+        y=alt.Y('Symbol:N', sort='-x'),
+        color=alt.Color(
+            'Year:N',
+            title='Year',
+            sort='descending',
+            scale=alt.Scale(scheme='darkblue', reverse=False),
+            legend=alt.Legend(orient='top')
+        ),
+        order=alt.Order(
+            'Year',
+            sort='descending'
+        )
+    ).properties(
+        title='Top 20 of All Time'
+    ).configure_title(
+        fontSize=25,
+        font='Lato'
+    )
 
+    st.altair_chart(dividends_per_stock, use_container_width=True)
 
-# st.header('Yearly salary')
-# salary_df = pd.DataFrame(data=[
-#         ['2018-09', 10800*13/12, 4238],
-#         ['2018-11', 13344*13/12, 4238],
-#         ['2019-01', 13548*13/12, 4468],
-#         ['2019-09', 15600*13/12, 4468],
-#         ['2020-01', 15780*13/12, 534],
-#         ['2020-09', 20184*13/12, 534],
-#         ['2021-01', 20376*13/12, 5260],
-#         ['2021-09', 37700, 3500],
-#         ['2022-01', 38220, 3500],
-#         ['2022-04', 39520, 3500],
-#         ['2022-09', 42380, 3500],
-#         # ['2023-01', 61000, 0],
-#     ],
-#     columns=['date', 'salary', 'variable']
-# )
-# salary_df = salary_df.assign(date=pd.to_datetime(salary_df.date))
-# salary_df = salary_df.set_index('date').resample('1M').ffill().reset_index()
-# salary_df = salary_df.melt('date', var_name='source', value_name='amount')
+for i, year in enumerate(years, 1):
+    with tabs[i]:
+        dividends_ = (dividends
+            [dividends.Date.dt.year == int(year)]
+            .groupby('Symbol')
+            .Dividends.sum()
+            .sort_values(ascending=False)
+            .iloc[:10]
+            .reset_index()
+        )
 
-# salary_chart = alt.Chart(salary_df).mark_bar().encode(
-#     x=alt.X('yearmonth(date):T', title='Date'),
-#     y=alt.Y('sum(amount):Q'),
-#     color=alt.Color('source:N', title='Source'),
-#     order=alt.Order('sum(amount):Q', sort='descending')
-# )
+        dividends_per_stock = alt.Chart(
+            dividends_
+        ).mark_bar(color='#3B97F3').encode(
+            x=alt.X(
+                'sum(Dividends)',
+                title='Dividends',
+                axis=alt.Axis(format='$.0f', tickMinStep=1)
+            ),
+            y=alt.Y('Symbol:N', sort='-x'),
+        ).properties(
+            title=f'Top 10 of {year}'
+        ).configure_title(
+            fontSize=25,
+            font='Lato'
+        )
 
-# st.altair_chart(salary_chart)
+        st.altair_chart(dividends_per_stock, use_container_width=True)
