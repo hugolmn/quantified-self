@@ -72,7 +72,9 @@ stress_donut = alt.Chart(stress_df_period).mark_arc(innerRadius=100).encode(
         subtitle=f'{average_stress.average_stress_level.iloc[-n_days:].mean():.0f}',
         subtitleFontSize=50,
         color='white',
-        # align='center',
+        align='center',
+        dx=5,
+        dy=175
         # dy=225,
         # dx=225
     ),
