@@ -15,11 +15,12 @@ def get_sleep_data():
         date=pd.to_datetime(df.date, utc=True).dt.tz_convert('Europe/Paris'),
         sleep_end=pd.to_datetime(df.sleep_end, utc=True).dt.tz_convert('Europe/Paris'),
         sleep_start=pd.to_datetime(df.sleep_start, utc=True).dt.tz_convert('Europe/Paris'),
-    )
-    df = df.assign(day_of_week=df.date.dt.day_name())
+        sleep_duration=pd.to_datetime(df.sleep_time_seconds, unit='s')
 
-    # df = df.assign(sleep_duration=df.sleep_end-df.sleep_start)
-    # df['day_of_week'] = np.where(df.date.dt.weekday >= 6, 'weekend', 'weekday')
+    )
+    df = df.assign(
+        day_of_week=df.date.dt.day_name(),
+    )
     return df
 
 def get_sleep_levels_data():
@@ -45,21 +46,24 @@ sleep = get_sleep_data()
 
 chart = alt.Chart(sleep).mark_point().encode(
     x=alt.X(
-        'sleep_time_seconds:Q',
-        scale=alt.Scale(zero=False)
+        'utchoursminutesseconds(sleep_duration)',
+        title='Sleep Duration'
     ),
     y=alt.Y(
         'avg_sleep_stress:Q',
+        title='Average Sleep Stress',
         scale=alt.Scale(zero=False)
     ),
     color=alt.Color(
         'sleep_score:Q',
         scale=alt.Scale(scheme='viridis'),
+        legend=alt.Legend(orient='top')
     ),
     tooltip=[
-        alt.Tooltip('date:T'),
-        alt.Tooltip('sleep_time_seconds:Q'),
-        alt.Tooltip('avg_sleep_stress:Q'),
+        alt.Tooltip('date:T', title='Date'),
+        # alt.Tooltip('utchoursminutesseconds(sleep_duration)', title='Sleep duration'),
+        alt.Tooltip('avg_sleep_stress:Q', title='Average Sleep Stress', format='.0f'),
+        alt.Tooltip('sleep_score:Q', title='Sleep Score'),
     ]
 ).interactive(bind_y=False, bind_x=False)
 
@@ -87,7 +91,9 @@ chart = alt.Chart(sleep_levels).mark_bar().encode(
             title='Time'
         )
     ),
-    y2=alt.Y2('yearmonthdatehoursminutesseconds(level_end):T'),
+    y2=alt.Y2(
+        'yearmonthdatehoursminutesseconds(level_end):T',
+    ),
     x=alt.X('date'),
     color=alt.Color(
         'activity_level',
@@ -106,6 +112,12 @@ chart = alt.Chart(sleep_levels).mark_bar().encode(
                 '#ed79d5',
             ]
         )
-    )
+    ),
+    tooltip=[
+        alt.Tooltip('date'),
+        alt.Tooltip('hoursminutes(level_start):T', title='Level Start'),
+        alt.Tooltip('hoursminutes(level_end):T', title='Level End'),
+        alt.Tooltip('activity_level', title='Activity Level'),
+    ]
 )
 st.altair_chart(chart, use_container_width=True)
