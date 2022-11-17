@@ -24,12 +24,12 @@ def load_dividend_data():
 
     df = df.dropna(subset=['Transaction Date'])
     df = df[df.Type == 'Dividend']
-    df = df[df.Portfolio == 'CTO']
+    df = df[(df.Portfolio == 'CTO') | (df.Portfolio == 'ETF')]
 
     df['Date'] = pd.to_datetime(df['Transaction Date'].str.split().str[0])
     df['Dividends'] = df['Shares Owned']
 
-    df = df[['Symbol', 'Name', 'Date', 'Dividends']]
+    df = df[['Symbol', 'Name', 'Date', 'Dividends', 'Portfolio']]
 
     df = df[df.Date.dt.date < datetime.datetime.now().date().replace(day=1)]
     df = df.sort_values(by='Date')
@@ -42,27 +42,60 @@ selected_scale = st.selectbox('Scale', options=['Yearly', 'Monthly'], index=1)
 transformation = {'Yearly': 'year', 'Monthly': 'yearmonth'}[selected_scale]
 
 dividends_chart = alt.Chart(dividends).mark_bar(color='#3B97F3').encode(
-    x=alt.X(f'{transformation}(Date):O', title='Year'),
-    y=alt.Y('sum(Dividends):Q', title=f'{selected_scale} dividend', axis=alt.Axis(format='$.0f')),
+    x=alt.X(
+        f'{transformation}(Date):O',
+        title='Year'
+    ),
+    y=alt.Y(
+        'sum(Dividends):Q',
+        title=f'{selected_scale} dividends',
+        axis=alt.Axis(format='$.0f')
+    ),
     tooltip=[
         alt.Tooltip(f'{transformation}(Date):O', title='Date'),
         alt.Tooltip('sum(Dividends):Q', title='Dividends', format='$.0f'),
-    ]
+        alt.Tooltip('Portfolio')
+    ],
+    color=alt.Color(
+        'Portfolio',
+        sort='descending',
+        scale=alt.Scale(
+            domain=[
+                'CTO',
+                'ETF',
+            ],
+            range=[
+                st.secrets["theme"]['primaryColor'],
+                st.secrets["theme"]['secondaryColor']
+            ]
+        )
+    ),
+    order=alt.Order('Portfolio')
 )
 
 if selected_scale == 'Monthly':
     dividends_trend = alt.Chart(
         dividends.set_index('Date').resample('1M').sum().reset_index()
     ).mark_line(
-        color='#F27716'
+        color='#FFFFFF'
     ).transform_window(
-        rolling_mean='mean(Dividends)',
+        rolling_mean='sum(Dividends)',
         frame=[-11, 0] # 12 month average
     ).encode(
-        x=alt.X(f'{transformation}(Date):O'),
-        y=alt.Y('rolling_mean:Q', title=f'TTM dividend', axis=alt.Axis(format='$.0f')),
+        x=alt.X(f'{transformation}(Date):O', title='Year'),
+        y=alt.Y(
+            'rolling_mean:Q',
+            title=f'TTM dividends',
+            axis=alt.Axis(format='$.0f', grid=True)
+        ),
     )
-    st.altair_chart(dividends_chart + dividends_trend, use_container_width=True)
+    st.altair_chart(
+        alt.layer(
+            dividends_chart,
+            dividends_trend
+        ).resolve_scale(y='independent'),
+        use_container_width=True
+    )
 
 else:
     st.altair_chart(dividends_chart, use_container_width=True)
