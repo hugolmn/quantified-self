@@ -58,7 +58,7 @@ col1, col2 = st.columns(2)
 rhr_scatterplot = alt.Chart(rhr_df).mark_point(color='#FFFFFF').encode(
     x=alt.Y(
         'yearmonthdate(date):T',
-        title='Date',
+        title='',
         axis=alt.Axis(
             format='%B %Y',
             tickCount='month',
@@ -83,7 +83,7 @@ rolling_mean_chart = alt.Chart(
     rhr_df.drop(columns='resting_heart_rate')
           .melt('date', var_name='rolling', value_name='resting_heart_rate')
 ).mark_line(color='#3B97F3').encode(
-    x=alt.X('date', title='Date'),
+    x=alt.X('date', title=''),
     y=alt.Y('resting_heart_rate'),
     color=alt.Color(
         'rolling:N',
@@ -103,7 +103,11 @@ col1.altair_chart(rhr_scatterplot + rolling_mean_chart, use_container_width=True
 
 # Density plot
 rhr_histogram = alt.Chart(rhr_df).mark_bar(color='#3B97F3').encode(
-    x=alt.X('resting_heart_rate:N', title='Resting Heart Rate'),
+    x=alt.X(
+        'resting_heart_rate:N',
+        title=''
+        # title='Resting Heart Rate',
+    ),
     y=alt.Y('count()', title='Count')
 )
 col2.altair_chart(rhr_histogram, use_container_width=True)
