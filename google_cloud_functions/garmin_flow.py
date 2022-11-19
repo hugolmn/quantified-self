@@ -37,6 +37,7 @@ def collect_all(event, context):
     HydrationCollector(garmin_api, conn).insert_new_data()
     SleepCollector(garmin_api, conn).insert_new_data()
     SleepLevelsCollector(garmin_api, conn).insert_new_data()
+    WeightCollector(garmin_api, conn).insert_new_data()
 
     # close connection
     conn.close()

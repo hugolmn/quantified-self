@@ -276,3 +276,23 @@ class SleepLevelsCollector(GarminCollector):
         ]]
 
         return df
+
+class WeightCollector(GarminCollector):
+
+    def __init__(self, garmin_api, conn):
+        super().__init__(garmin_api, conn, 'weight')
+
+    def collect_data(self, dates):
+        record_list = []
+        for date in dates:
+            if weight_data := self.garmin_api.get_body_composition(date.date())['dateWeightList']:
+                record_list.append(*weight_data)
+
+        if record_list:
+            df = pd.DataFrame(record_list)
+            df = df[['calendarDate', 'weight']]
+            df = df.assign(weight=df.weight/1000)
+            df = df.rename(columns={'calendarDate': 'date'})
+            return df
+        else:
+            return pd.DataFrame()
