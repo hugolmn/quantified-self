@@ -76,6 +76,47 @@ def generate_metric_fasting(col, label, df, days):
         delta=f"""{format_timedelta(fast - all_time)} vs all time""" if days is not None else None,
     )
 
+def breakfast_chart(df_fasting_stress, min_hour=0, max_hour=24):
+    df_fasting_stress = df_fasting_stress[df_fasting_stress.time_since_breakfast.between(-3, 3)]
+
+    # Filter by fast end date
+    df_fasting_stress = df_fasting_stress[df_fasting_stress.End.dt.hour.between(min_hour, max_hour)]
+
+    df_fasting_stress = pd.pivot_table(
+            df_fasting_stress[df_fasting_stress.stress > 0],
+            index=df_fasting_stress.time_since_breakfast.mul(6).round(0).div(6),
+            values='stress',
+            aggfunc='median'
+        ).reset_index()
+
+    fasting_stress_chart = alt.Chart(
+        df_fasting_stress
+    ).mark_line(
+        color=st.secrets["theme"]['primaryColor']
+    ).encode(
+        x=alt.X('time_since_breakfast:Q', title='Hours since breakfast'),
+        y=alt.Y('median(stress):Q', title='Median stress level', scale=alt.Scale(zero=False))
+    )
+
+    rule = alt.Chart(
+        pd.DataFrame({'time_since_breakfast': [0]}).assign(legend='Breaking fast')
+    ).mark_rule().encode(
+    x='time_since_breakfast:Q',
+    color=alt.Color(
+        'legend:N',
+        title='',
+        scale=alt.Scale(
+            range=[
+                st.secrets["theme"]['secondaryColor'],
+                st.secrets["theme"]['secondaryColor']
+            ]
+        ),
+        legend=alt.Legend(orient='bottom-right')
+    )
+    )
+
+    st.altair_chart(fasting_stress_chart + rule, use_container_width=True)
+
 st.title('Fasting')
 df = load_fasting_df()
 st.write(f'I am an adept of intermittent fasting: I usually skip breakfast and spend around 16 hours a day fasting. {len(df)} days of data collected.')
@@ -124,38 +165,8 @@ st.altair_chart(fasting_history, use_container_width=True)
 st.header('Impact of breaking fast on stress level')
 df_fasting_stress = load_fasting_stress_df()
 st.write(f"""
-    Breaking a fast (or any meal in general) has a strong impact on the stree level.
-    Graph based on {df_fasting_stress.Date.nunique()} days of data.
+    Breaking a fast (or any meal in general) has a strong impact on the stress level.
+    Graphs based on {df_fasting_stress.Date.nunique()} days of data.
+    If the first meal is taken after 11AM, a spike follows:
 """)
-df_fasting_stress = df_fasting_stress[df_fasting_stress.time_since_breakfast.between(-3, 3)]
-
-df_fasting_stress = pd.pivot_table(
-        df_fasting_stress[df_fasting_stress.stress > 0],
-        index=df_fasting_stress.time_since_breakfast.mul(6).round(0).div(6),
-        values='stress',
-        aggfunc='median'
-    ).reset_index()
-
-fasting_stress_chart = alt.Chart(df_fasting_stress
-).mark_line(color=st.secrets["theme"]['primaryColor']).encode(
-    x=alt.X('time_since_breakfast:Q', title='Hours since breakfast'),
-    y=alt.Y('median(stress):Q', title='Median stress level', scale=alt.Scale(zero=False))
-)
-
-rule = alt.Chart(pd.DataFrame({'time_since_breakfast': [0]}).assign(legend='Breaking fast')
-).mark_rule().encode(
-  x='time_since_breakfast:Q',
-  color=alt.Color(
-    'legend:N',
-    title='',
-    scale=alt.Scale(
-        range=[
-            st.secrets["theme"]['secondaryColor'],
-            st.secrets["theme"]['secondaryColor']
-        ]
-    ),
-    legend=alt.Legend(orient='bottom-right')
-  )
-)
-
-st.altair_chart(fasting_stress_chart + rule, use_container_width=True)
+breakfast_chart(df_fasting_stress, 11, 24)
