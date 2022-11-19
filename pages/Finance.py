@@ -24,7 +24,7 @@ def load_dividend_data():
 
     df = df.dropna(subset=['Transaction Date'])
     df = df[df.Type == 'Dividend']
-    df = df[(df.Portfolio == 'CTO') | (df.Portfolio == 'ETF')]
+    df = df[(df.Portfolio == 'Stocks') | (df.Portfolio == 'ETF')]
 
     df['Date'] = pd.to_datetime(df['Transaction Date'].str.split().str[0])
     df['Dividends'] = df['Shares Owned']
@@ -43,8 +43,9 @@ transformation = {'Yearly': 'year', 'Monthly': 'yearmonth'}[selected_scale]
 
 dividends_chart = alt.Chart(dividends).mark_bar(color='#3B97F3').encode(
     x=alt.X(
-        f'{transformation}(Date):O',
-        title='Year'
+        f'{transformation}(Date):T',
+        title='',
+        axis=alt.Axis(format='%Y', tickCount='year', grid=True)
     ),
     y=alt.Y(
         'sum(Dividends):Q',
@@ -61,7 +62,7 @@ dividends_chart = alt.Chart(dividends).mark_bar(color='#3B97F3').encode(
         sort='descending',
         scale=alt.Scale(
             domain=[
-                'CTO',
+                'Stocks',
                 'ETF',
             ],
             range=[
@@ -82,7 +83,10 @@ if selected_scale == 'Monthly':
         rolling_mean='sum(Dividends)',
         frame=[-11, 0] # 12 month average
     ).encode(
-        x=alt.X(f'{transformation}(Date):O', title='Year'),
+        x=alt.X(
+            f'{transformation}(Date):T',
+            title='',
+        ),
         y=alt.Y(
             'rolling_mean:Q',
             title=f'TTM dividends',
