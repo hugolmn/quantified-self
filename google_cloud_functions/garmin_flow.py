@@ -6,14 +6,22 @@ from garminconnect import Garmin
 from garmin_collectors import *
 
 def get_cockroachdb_conn():
-
-    os.system('curl --create-dirs -o ~/.postgresql/root.crt -O https://cockroachlabs.cloud/clusters/b41c3959-f129-4644-acbf-06ec2ac22b22/cert')
+    os.system('mkdir -p /tmp/.postgresql')
+    os.system('chmod +rw /tmp/.postgresql')
+    os.system('curl -o /tmp/.postgresql/root.crt -O https://cockroachlabs.cloud/clusters/b41c3959-f129-4644-acbf-06ec2ac22b22/cert')
 
     # Init connection to CockroachDB
     connection_string = os.environ.get('cockroachdb')
     connection_string = connection_string.replace('database_name', 'garmin')
 
-    engine = create_engine(connection_string)
+    engine = create_engine(
+        connection_string,
+        connect_args={
+        #     'ssl':{
+                'sslrootcert': '/tmp/.postgresql/root.crt'
+        #     }
+        }
+    )
     conn = engine.connect()
     return engine, conn 
 
