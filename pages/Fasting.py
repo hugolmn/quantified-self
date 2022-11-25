@@ -5,7 +5,6 @@ import altair as alt
 import io
 import datetime
 from utils import find_file_id, download_file, get_garmin_data, load_css
-alt.themes.enable("streamlit")
 st.set_page_config(layout="wide")
 load_css()
 
@@ -115,7 +114,7 @@ def breakfast_chart(df_fasting_stress, min_hour=0, max_hour=24):
     )
     )
 
-    st.altair_chart(fasting_stress_chart + rule, use_container_width=True)
+    st.altair_chart(fasting_stress_chart + rule, use_container_width=True, theme='streamlit')
 
 st.title('Fasting')
 df = load_fasting_df()
@@ -159,7 +158,7 @@ fasting_history = alt.Chart(df).mark_rect().encode(
         alt.Tooltip('tooltip', title='Fast duration')
     ]
 )
-st.altair_chart(fasting_history, use_container_width=True)
+st.altair_chart(fasting_history, use_container_width=True, theme='streamlit')
 
 
 st.header('Impact of breaking fast on stress level')

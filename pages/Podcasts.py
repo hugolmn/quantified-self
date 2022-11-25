@@ -7,7 +7,6 @@ import zipfile
 import altair as alt
 
 from utils import download_file, find_file_id, load_css
-alt.themes.enable("streamlit")
 st.set_page_config(layout="wide")
 load_css()
 
@@ -87,7 +86,7 @@ podcast_plot = alt.Chart(podcast_df).mark_bar(color=st.secrets["theme"]['primary
         alt.Tooltip('sum(duration)', title='hours', format='.0f')
     ]
 )
-st.altair_chart(podcast_plot, use_container_width=True)
+st.altair_chart(podcast_plot, use_container_width=True, theme='streamlit')
 
 years = (podcast_df
     .playbackDate.dt.year

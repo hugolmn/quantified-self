@@ -4,7 +4,6 @@ import streamlit as st
 import altair as alt
 import sqlite3
 from utils import find_file_id, download_file, load_css
-alt.themes.enable("streamlit")
 st.set_page_config(layout="wide")
 load_css()
 
@@ -53,7 +52,7 @@ history_plot = alt.Chart(hsk_df[['id']]).mark_bar(color=st.secrets["theme"]['pri
     x='yearmonthdate(id):T',
     y='count():Q'
 )
-st.altair_chart(history_plot, use_container_width=True)
+st.altair_chart(history_plot, use_container_width=True, theme='streamlit')
 
 cumulative_hsk = hsk_df.drop_duplicates(subset=['cid'])
 cumulative_hsk = cumulative_hsk.assign(cumcount=cumulative_hsk.sort_values(by='id').groupby('HSK').cumcount())
@@ -63,4 +62,4 @@ hsk_plot = alt.Chart(cumulative_hsk[:1000]).mark_line().encode(
     y='cumcount:Q',
     color='HSK'
 )
-st.altair_chart(hsk_plot, use_container_width=True)
+st.altair_chart(hsk_plot, use_container_width=True, theme='streamlit')

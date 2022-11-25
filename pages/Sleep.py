@@ -67,7 +67,7 @@ chart = alt.Chart(sleep).mark_point().encode(
     ]
 ).interactive(bind_y=False, bind_x=False)
 
-st.altair_chart(chart, use_container_width=True)
+st.altair_chart(chart, use_container_width=True, theme='streamlit')
 
 st.header('Sleep activity levels')
 sleep_levels = get_sleep_levels_data()
@@ -120,4 +120,4 @@ chart = alt.Chart(sleep_levels).mark_bar().encode(
         alt.Tooltip('activity_level', title='Activity Level'),
     ]
 )
-st.altair_chart(chart, use_container_width=True)
+st.altair_chart(chart, use_container_width=True, theme='streamlit')

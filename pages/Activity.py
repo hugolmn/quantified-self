@@ -5,7 +5,6 @@ import altair as alt
 import datetime
 
 from utils import load_css, get_garmin_data
-alt.themes.enable("streamlit")
 st.set_page_config(layout="wide")
 load_css()
 
@@ -95,8 +94,11 @@ steps_weekly_rolling_mean_plot = alt.Chart(
 
 col1.altair_chart(
     steps_scatterplot_daily + steps_weekly_rolling_mean_plot,
-    use_container_width=True
+    use_container_width=True,
+    theme='streamlit'
 )
+
+# st.write((steps_scatterplot_daily + steps_weekly_rolling_mean_plot).to_dict())
 
 # Hourly plot
 steps_scatterplot_hourly = alt.Chart(steps_df).mark_line().encode(
@@ -117,7 +119,11 @@ steps_scatterplot_hourly = alt.Chart(steps_df).mark_line().encode(
     ),
     tooltip=['hoursminutes(date)']
 )
-col2.altair_chart(steps_scatterplot_hourly, use_container_width=True)
+col2.altair_chart(
+    steps_scatterplot_hourly,
+    use_container_width=True,
+    theme='streamlit'
+)
 
 
 st.header(f'Activity Level')
@@ -126,7 +132,7 @@ col1, col2 = st.columns(2)
 
 activity_level_chart = alt.Chart(steps_df.dropna(subset=['activity_level'])).mark_bar().encode(
     x=alt.X('yearmonthdate(date)', title='Date'),
-    y=alt.Y('count(activity_level)', stack='normalize', title='Percentageof day'),
+    y=alt.Y('count(activity_level)', stack='normalize', title='Percentage of day'),
     color=alt.Color('activity_level:N', title='Activity level'),
     tooltip=[
         alt.Tooltip('yearmonthdate(date)', title='Date'),
@@ -134,7 +140,7 @@ activity_level_chart = alt.Chart(steps_df.dropna(subset=['activity_level'])).mar
     ]
 )
 
-col1.altair_chart(activity_level_chart, use_container_width=True)
+col1.altair_chart(activity_level_chart, use_container_width=True, theme='streamlit')
 
 
 sedentarity_chart = alt.Chart(steps_df[steps_df.activity_level.isin(['active', 'highlyActive'])]).mark_bar().encode(
@@ -146,4 +152,8 @@ sedentarity_chart = alt.Chart(steps_df[steps_df.activity_level.isin(['active', '
         alt.Tooltip('activity_level', title='Activity level'),
     ]
 )
-col2.altair_chart(sedentarity_chart, use_container_width=True)
+col2.altair_chart(
+    sedentarity_chart, 
+    use_container_width=True,
+    theme='streamlit'
+)

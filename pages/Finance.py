@@ -5,7 +5,6 @@ import altair as alt
 import datetime
 
 from utils import find_file_id, download_file, load_gsheet, load_css
-alt.themes.enable("streamlit")
 st.set_page_config(layout="wide")
 load_css()
 
@@ -98,11 +97,12 @@ if selected_scale == 'Monthly':
             dividends_chart,
             dividends_trend
         ).resolve_scale(y='independent'),
-        use_container_width=True
+        use_container_width=True,
+        theme='streamlit'
     )
 
 else:
-    st.altair_chart(dividends_chart, use_container_width=True)
+    st.altair_chart(dividends_chart, use_container_width=True, theme='streamlit')
 
 years = (dividends
     .Date
@@ -157,7 +157,7 @@ with tabs[0]:
         font='Lato'
     )
 
-    st.altair_chart(dividends_per_stock, use_container_width=True)
+    st.altair_chart(dividends_per_stock, use_container_width=True, theme='streamlit')
 
 for i, year in enumerate(years, 1):
     with tabs[i]:
@@ -186,4 +186,4 @@ for i, year in enumerate(years, 1):
             font='Lato'
         )
 
-        st.altair_chart(dividends_per_stock, use_container_width=True)
+        st.altair_chart(dividends_per_stock, use_container_width=True, theme='streamlit')

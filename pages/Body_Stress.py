@@ -4,7 +4,6 @@ Body stress page.
 import streamlit as st
 import altair as alt
 from utils import load_css, get_garmin_data
-alt.themes.enable('default')
 st.set_page_config(layout="wide")
 load_css()
 
@@ -151,5 +150,6 @@ col2.altair_chart(
         alt.layer(stress_df_history_chart, average_stress_plot)
            .resolve_scale(y='independent', color='independent')
     ),
-    use_container_width=True
+    use_container_width=True,
+    theme='streamlit'
 )

@@ -6,7 +6,6 @@ import altair as alt
 import numpy as np
 import seaborn as sns
 from utils import load_css, get_garmin_data
-alt.themes.enable("streamlit")
 st.set_page_config(layout="wide")
 load_css()
 
@@ -99,7 +98,7 @@ rolling_mean_chart = alt.Chart(
         )
     ),
 )
-col1.altair_chart(rhr_scatterplot + rolling_mean_chart, use_container_width=True)
+col1.altair_chart(rhr_scatterplot + rolling_mean_chart, use_container_width=True, theme='streamlit')
 
 # Density plot
 rhr_histogram = alt.Chart(rhr_df).mark_bar(color='#3B97F3').encode(
@@ -110,7 +109,7 @@ rhr_histogram = alt.Chart(rhr_df).mark_bar(color='#3B97F3').encode(
     ),
     y=alt.Y('count()', title='Count')
 )
-col2.altair_chart(rhr_histogram, use_container_width=True)
+col2.altair_chart(rhr_histogram, use_container_width=True, theme='streamlit')
 
 # st.header('Heart Rate')
 # hr_df = get_garmin_data("""SELECT date, hr FROM heart_rate WHERE hr > 0""").copy()
