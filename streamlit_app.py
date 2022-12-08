@@ -2,13 +2,13 @@ import streamlit as st
 import pandas as pd
 
 st.set_page_config(
-     page_title="Quantified Self",
+    page_title="Quantified Self",
     #  layout="wide",
     #  initial_sidebar_state="expanded",
      menu_items={
          'Get help': 'https://twitter.com/hugo_le_moine_',
          'Report a Bug': 'https://twitter.com/hugo_le_moine_',
-         'About': "# Quantified Self. This is an app still under construction!"
+         'About': "# Quantified Self. Personal data collection and reporting."
      }
  )
 
@@ -26,6 +26,7 @@ st.markdown(
     - <a href="/Heart_Rate" target="_self">Heart Rate</a>: resting heart rate.
     - <a href="/Podcasts" target="_self">Podcasts</a>: podcast listening history and yearly tops.
     - <a href="/Sleep" target="_self">Sleep</a>: Sleep data from Garmin.
+    - <a href="/Weight" target="_self">Weight</a>: Weight data from Garmin.
     """,
     unsafe_allow_html=True
 )
