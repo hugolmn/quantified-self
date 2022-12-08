@@ -38,6 +38,7 @@ Data come from various sources. Ticked boxes correspond to data that can already
 - [x] Hydration
 - [x] Daily stats
 - [x] Sleep
+- [x] Weight
 ### Intermittent Fasting
 - [x] [Zero](https://play.google.com/store/apps/details?id=com.zerofasting.zero): an app I used to track my period of fasting, since July 2022.
 
