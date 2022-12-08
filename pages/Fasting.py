@@ -17,6 +17,9 @@ def load_fasting_df():
     # Load as dataframe
     df = pd.read_csv(io.StringIO(file.getvalue().decode()))
 
+    # Drop when fast is less than an hour
+    df = df[df.Hours != 0]
+
     # Convert to datetime
     df['End'] = (pd.to_datetime(df.Date + ' ' + df.End) + pd.Timedelta('1D')).dt.tz_localize('Europe/Paris')
     df['Start'] = pd.to_datetime(df.Date + ' ' + df.Start).dt.tz_localize('Europe/Paris')
@@ -41,7 +44,6 @@ def load_stress_df():
 
 def load_fasting_stress_df():
     df = load_fasting_df()
-
     stress = get_garmin_data("SELECT * FROM stress")
     stress = stress.assign(date=pd.to_datetime(stress.date, utc=True).dt.tz_convert('Europe/Paris'))
 
@@ -56,11 +58,12 @@ def load_fasting_stress_df():
     return df
 
 def format_timedelta(seconds):
-    return str(
-        datetime.timedelta(
-            seconds=round(seconds)
-        )
-    )[:-3].replace(':', 'h ') + 'min'
+    if seconds >= 0:
+        return f"{seconds // 3600:.0f}h {(seconds // 60) % 60:.0f}min "
+    seconds = abs(seconds)
+    if seconds < 3600:
+        return f"-{(seconds // 60) % 60:.0f}min "
+    return f"-{seconds // 3600:.0f}h {(seconds // 60) % 60:.0f}min "
 
 def generate_metric_fasting(col, label, df, days):
     if days:
