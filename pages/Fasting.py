@@ -63,7 +63,7 @@ def format_timedelta(seconds):
     seconds = abs(seconds)
     if seconds < 3600:
         return f"-{(seconds // 60) % 60:.0f}min "
-    return f"-{seconds // 3600:.0f}h {(seconds // 60) % 60:.0f}min "
+    return f"-{seconds // 3600:.0f}h {(seconds // 60) % 60:.0f}min"
 
 def generate_metric_fasting(col, label, df, days):
     if days:
