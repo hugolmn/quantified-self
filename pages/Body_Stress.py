@@ -72,10 +72,7 @@ stress_donut = alt.Chart(stress_df_period).mark_arc(innerRadius=100).encode(
         subtitleFontSize=50,
         color='white',
         align='center',
-        dx=5,
-        dy=175
-        # dy=225,
-        # dx=225
+        dy=200
     ),
 )
 
