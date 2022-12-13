@@ -27,9 +27,13 @@ weight_points = alt.Chart(weight_df).mark_point(color='#FFFFFF').encode(
     ),
     y=alt.Y(
         'weight',
-        title='Weight',
+        title='Weight (kg)',
         scale=alt.Scale(zero=False)
-    )
+    ),
+    tooltip=[
+        alt.Tooltip('date:T', title='Date'),
+        alt.Tooltip('weight', title='Weight'),
+    ]
 )
 # Display line
 weight_chart = alt.Chart(weight_df).mark_line(color=st.secrets["theme"]['primaryColor'], interpolate='basis').encode(
