@@ -68,7 +68,8 @@ dividends_chart = alt.Chart(dividends).mark_bar(color='#3B97F3').encode(
                 st.secrets["theme"]['primaryColor'],
                 st.secrets["theme"]['secondaryColor']
             ]
-        )
+        ),
+        legend=alt.Legend(orient='top')
     ),
     order=alt.Order('Portfolio')
 )
