@@ -46,6 +46,22 @@ class GarminCollector(ABC):
         missing_dates = self.create_list_missing_dates()
         if not missing_dates.empty:
             df = self.collect_data(missing_dates)
+
+            if 'date' in df.columns:
+                try: 
+                    df = df.drop_duplicates(subset=['date'], keep='first')
+                    existing_dates = pd.read_sql(
+                        f"""
+                        SELECT date
+                        FROM {self.table}
+                        WHERE date IN ('{"', '".join(df.date.dt.strftime(date_format='%Y-%m-%d %H:%M'))}')
+                        """,
+                        con=self.conn
+                    )
+                    df = df[~df.date.isin(existing_dates.date)]
+                except:
+                    pass
+
             df.to_sql(
                 self.table,
                 self.conn,
@@ -72,33 +88,58 @@ class StatsCollector(GarminCollector):
             for date in dates
         ])
 
-        df = df[[
+        df = df[df.columns.intersection([
             # Date
             'calendarDate',
             # Calories
-            'totalKilocalories', 'activeKilocalories', 'bmrKilocalories',
+            'totalKilocalories',
+            'activeKilocalories',
+            'bmrKilocalories',
             # Steps
-            'totalSteps', 'totalDistanceMeters',
+            'totalSteps',
+            'totalDistanceMeters',
             # Activity level
-            'highlyActiveSeconds', 'activeSeconds', 'sedentarySeconds', 'sleepingSeconds',
+            'highlyActiveSeconds',
+            'activeSeconds',
+            'sedentarySeconds',
+            'sleepingSeconds',
             # Intense minutes
-            'moderateIntensityMinutes', 'vigorousIntensityMinutes',
+            'moderateIntensityMinutes',
+            'vigorousIntensityMinutes',
             # Elevation
-            'floorsAscendedInMeters', 'floorsDescendedInMeters',
+            'floorsAscendedInMeters',
+            'floorsDescendedInMeters',
             # HR
-            'minHeartRate', 'maxHeartRate', 'restingHeartRate', 'lastSevenDaysAvgRestingHeartRate',
+            'minHeartRate',
+            'maxHeartRate',
+            'restingHeartRate',
+            'lastSevenDaysAvgRestingHeartRate',
             # Stress
-            'averageStressLevel', 'maxStressLevel', 'stressDuration', 'restStressDuration', 'activityStressDuration',
-            'uncategorizedStressDuration', 'totalStressDuration', 'lowStressDuration', 'mediumStressDuration', 'highStressDuration',
+            'averageStressLevel',
+            'maxStressLevel',
+            'stressDuration',
+            'restStressDuration',
+            'activityStressDuration',
+            'uncategorizedStressDuration',
+            'totalStressDuration',
+            'lowStressDuration',
+            'mediumStressDuration',
+            'highStressDuration',
             # Awake / Asleep
-            'measurableAwakeDuration', 'measurableAsleepDuration',
+            'measurableAwakeDuration',
+            'measurableAsleepDuration',
             # Body battery
-            'bodyBatteryChargedValue', 'bodyBatteryDrainedValue', 'bodyBatteryHighestValue', 'bodyBatteryLowestValue',
+            'bodyBatteryChargedValue',
+            'bodyBatteryDrainedValue',
+            'bodyBatteryHighestValue',
+            'bodyBatteryLowestValue',
             # SPO2
-            'averageSpo2', 'lowestSpo2',
+            'averageSpo2',
+            'lowestSpo2',
             # Breathing
-            'avgWakingRespirationValue', 'highestRespirationValue',
-        ]]
+            'avgWakingRespirationValue',
+            'highestRespirationValue'
+        ])]
         
         df = df.rename(columns={'calendarDate': 'date'})
         df = df.assign(date=pd.to_datetime(df['date']).dt.date)
@@ -128,7 +169,7 @@ class StepsCollector(GarminCollector):
         df = df[['startGMT', 'steps', 'primaryActivityLevel']]
         df.columns = ['date', 'steps', 'activity_level']
 
-        df['date'] = pd.to_datetime(df.date, utc=True).dt.tz_convert('Europe/Paris')
+        df['date'] = pd.to_datetime(df.date, utc=True).dt.tz_convert('Europe/Paris').dt.tz_localize(None)
 
         df = df.assign(steps=df.steps.astype(int).fillna(0))
         df = df.sort_values(by='date')
@@ -149,7 +190,7 @@ class HeartRateCollector(GarminCollector):
             for date in dates
         ])
         
-        df['date'] = pd.to_datetime(df['date'], unit='ms', utc=True).dt.tz_convert('Europe/Paris')
+        df['date'] = pd.to_datetime(df['date'], unit='ms', utc=True).dt.tz_convert('Europe/Paris').dt.tz_localize(None)
         df['hr'] = df.hr.fillna(-1).astype(int)
         df = df.sort_values(by='date')
         return df
@@ -169,7 +210,7 @@ class StressCollector(GarminCollector):
             for date in dates
         ])
         
-        df['date'] = pd.to_datetime(df['date'], unit='ms', utc=True).dt.tz_convert('Europe/Paris')
+        df['date'] = pd.to_datetime(df['date'], unit='ms', utc=True).dt.tz_convert('Europe/Paris').dt.tz_localize(None)
         df['stress'] = df.stress.astype(int)
         df = df.sort_values(by='date')
         return df
@@ -201,52 +242,33 @@ class SleepCollector(GarminCollector):
             for date in dates
         ])
         
-        df = df[[
-            'calendarDate',
-            'sleepStartTimestampGMT',
-            'sleepEndTimestampGMT',
-            'sleepTimeSeconds',
-            'deepSleepSeconds',
-            'lightSleepSeconds',
-            'remSleepSeconds',
-            'awakeSleepSeconds',
-            'averageSpO2Value',
-            'lowestSpO2Value',
-            'highestSpO2Value',
-            'averageSpO2HRSleep',
-            'averageRespirationValue',
-            'lowestRespirationValue',
-            'highestRespirationValue',
-            'awakeCount',
-            'avgSleepStress',
-            'sleepScores.overall.value'
-        ]]
+        column_mapping = {
+            'calendarDate': 'date',
+            'sleepStartTimestampGMT': 'sleep_start',
+            'sleepEndTimestampGMT': 'sleep_end',
+            'sleepTimeSeconds': 'sleep_time_seconds',
+            'deepSleepSeconds': 'deep_sleep_seconds',
+            'lightSleepSeconds': 'light_sleep_seconds',
+            'remSleepSeconds': 'rem_sleep_seconds',
+            'awakeSleepSeconds': 'awake_sleep_seconds',
+            'averageSpO2Value': 'average_spo2',
+            'lowestSpO2Value': 'lowest_spo2',
+            'highestSpO2Value': 'highest_spo2',
+            'averageSpO2HRSleep': 'average_spo2',
+            'averageRespirationValue': 'average_hr_sleep',
+            'lowestRespirationValue': 'lowest_respiration',
+            'highestRespirationValue': 'highest_respiration',
+            'awakeCount': 'awake_count',
+            'avgSleepStress': 'avg_sleep_stress',
+            'sleepScores.overall.value': 'sleep_score'
+        }
 
-        df = df.rename(columns={'calendarDate': 'date'})
+        df = df[df.columns.intersection(column_mapping.keys())]
+
+        df = df.rename(columns=column_mapping)
         df = df.assign(date=pd.to_datetime(df['date']).dt.date)
-        df['sleepStartTimestampGMT'] = pd.to_datetime(df['sleepStartTimestampGMT'], unit='ms', utc=True).dt.tz_convert('Europe/Paris')
-        df['sleepEndTimestampGMT'] = pd.to_datetime(df['sleepEndTimestampGMT'], unit='ms', utc=True).dt.tz_convert('Europe/Paris')
-
-        df.columns = [
-            'date',
-            'sleep_start',
-            'sleep_end',
-            'sleep_time_seconds',
-            'deep_sleep_seconds',
-            'light_sleep_seconds',
-            'rem_sleep_seconds',
-            'awake_sleep_seconds',
-            'average_spo2',
-            'lowest_spo2',
-            'highest_spo2',
-            'average_hr_sleep',
-            'average_respiration',
-            'lowest_respiration',
-            'highest_respiration',
-            'awake_count',
-            'avg_sleep_stress',
-            'sleep_score'
-        ]
+        df['sleep_start'] = pd.to_datetime(df['sleep_start'], unit='ms', utc=True).dt.tz_convert('Europe/Paris').dt.tz_localize(None)
+        df['sleepEndTimestampGMT'] = pd.to_datetime(df['sleepEndTimestampGMT'], unit='ms', utc=True).dt.tz_convert('Europe/Paris').dt.tz_localize(None)
 
         return df
 
@@ -262,8 +284,8 @@ class SleepLevelsCollector(GarminCollector):
         ])
         
         df['date'] = pd.to_datetime(df.date)
-        df['level_start'] = pd.to_datetime(df['startGMT'], utc=True).dt.tz_convert('Europe/Paris')
-        df['level_end'] = pd.to_datetime(df['endGMT'], utc=True).dt.tz_convert('Europe/Paris')
+        df['level_start'] = pd.to_datetime(df['startGMT'], utc=True).dt.tz_convert('Europe/Paris').dt.tz_localize(None)
+        df['level_end'] = pd.to_datetime(df['endGMT'], utc=True).dt.tz_convert('Europe/Paris').dt.tz_localize(None)
         df = df.assign(
             date=df.level_end.dt.date,
             activity_level=df.activityLevel.astype(int)
