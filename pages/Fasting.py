@@ -8,7 +8,7 @@ from utils import find_file_id, download_file, get_garmin_data, load_css
 st.set_page_config(layout="wide")
 load_css()
 
-@st.cache
+@st.cache_data
 def load_fasting_df():
     # Find and download file
     file_id = find_file_id("name contains 'zero.csv'")[0]['id']
