@@ -36,14 +36,15 @@ weight_points = alt.Chart(weight_df).mark_point(color='#FFFFFF').encode(
     ]
 )
 # Display line
-weight_chart = alt.Chart(weight_df).mark_line(color=st.secrets["theme"]['primaryColor'], interpolate='basis').encode(
-    x=alt.X('date:T', title=''),
-    y=alt.Y('weight', axis=alt.Axis(format=''),scale=alt.Scale(zero=False))
-)
+# weight_chart = alt.Chart(weight_df).mark_line(color=st.secrets["theme"]['primaryColor'], interpolate='basis').encode(
+#     x=alt.X('date:T', title=''),
+#     y=alt.Y('weight', axis=alt.Axis(format=''),scale=alt.Scale(zero=False))
+# )
 
 # Display chart in streamlit
 st.altair_chart(
-    weight_points + weight_chart,
+    # weight_points + weight_chart,
+    weight_points,
     use_container_width=True,
     theme='streamlit'
 )
