@@ -47,8 +47,6 @@ stress_df_period = (stress_df
 stress_df_period['duration'] = stress_df_period.duration.div(stress_df_period.duration.sum())
 stress_df_period['order'] = stress_df_period.index
 
-col1, col2 = st.columns(2)
-
 stress_donut = alt.Chart(stress_df_period).mark_arc(innerRadius=100).encode(
     theta=alt.Theta('duration:Q'),
     color=alt.Color(
@@ -66,17 +64,17 @@ stress_donut = alt.Chart(stress_df_period).mark_arc(innerRadius=100).encode(
         alt.Tooltip('duration', title='Duration', format='.0%')
     ]
 ).properties(
-    title=alt.TitleParams(
-        selected_period,
-        subtitle=f'{average_stress.average_stress_level.iloc[-n_days:].mean():.0f}',
-        subtitleFontSize=50,
-        color='white',
-        align='center',
-        dy=200
-    ),
+    # title=alt.TitleParams(
+    #     selected_period,
+    #     subtitle=f'{average_stress.average_stress_level.iloc[-n_days:].mean():.0f}',
+    #     subtitleFontSize=50,
+    #     align='center',
+    #     dx=300,
+    #     dy=225,
+    # ),
 )
 
-col1.altair_chart(stress_donut, use_container_width=True)
+st.altair_chart(stress_donut, use_container_width=True)
 
 stress_df_history = (stress_df
     .iloc[-n_days:]
@@ -142,7 +140,7 @@ average_stress_plot = alt.Chart(
     )
 )
 
-col2.altair_chart(
+st.altair_chart(
     (
         alt.layer(stress_df_history_chart, average_stress_plot)
            .resolve_scale(y='independent', color='independent')
