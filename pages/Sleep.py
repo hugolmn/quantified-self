@@ -69,55 +69,55 @@ chart = alt.Chart(sleep).mark_point().encode(
 
 st.altair_chart(chart, use_container_width=True, theme='streamlit')
 
-st.header('Sleep activity levels')
-sleep_levels = get_sleep_levels_data()
+# st.header('Sleep activity levels')
+# sleep_levels = get_sleep_levels_data()
 
-set_same_day_for_all = (lambda dt: 
-    dt.replace(year=2022, month=8, day=1) 
-    if dt.hour > 12 
-    else dt.replace(year=2022, month=8, day=2)
-)
+# set_same_day_for_all = (lambda dt: 
+#     dt.replace(year=2022, month=8, day=1) 
+#     if dt.hour > 12 
+#     else dt.replace(year=2022, month=8, day=2)
+# )
 
-sleep_levels = sleep_levels.assign(
-    level_start = sleep_levels.level_start.apply(set_same_day_for_all),
-    level_end = sleep_levels.level_end.apply(set_same_day_for_all)
-)
+# sleep_levels = sleep_levels.assign(
+#     level_start = sleep_levels.level_start.apply(set_same_day_for_all),
+#     level_end = sleep_levels.level_end.apply(set_same_day_for_all)
+# )
 
-chart = alt.Chart(sleep_levels).mark_bar().encode(
-    y=alt.Y(
-        'yearmonthdatehoursminutesseconds(level_start):T',
-        axis=alt.Axis(
-            format='%H:%M',
-            title='Time'
-        )
-    ),
-    y2=alt.Y2(
-        'yearmonthdatehoursminutesseconds(level_end):T',
-    ),
-    x=alt.X('date'),
-    color=alt.Color(
-        'activity_level',
-        title='Activity Level',
-        scale=alt.Scale(
-            domain=[
-                'Deep Sleep',
-                'Light Sleep',
-                'REM',
-                'Awake'
-            ],
-            range=[
-                '#004ba0',
-                '#1976d2',
-                '#ac06bc',
-                '#ed79d5',
-            ]
-        )
-    ),
-    tooltip=[
-        alt.Tooltip('date'),
-        alt.Tooltip('hoursminutes(level_start):T', title='Level Start'),
-        alt.Tooltip('hoursminutes(level_end):T', title='Level End'),
-        alt.Tooltip('activity_level', title='Activity Level'),
-    ]
-)
-st.altair_chart(chart, use_container_width=True, theme='streamlit')
+# chart = alt.Chart(sleep_levels).mark_bar().encode(
+#     y=alt.Y(
+#         'yearmonthdatehoursminutesseconds(level_start):T',
+#         axis=alt.Axis(
+#             format='%H:%M',
+#             title='Time'
+#         )
+#     ),
+#     y2=alt.Y2(
+#         'yearmonthdatehoursminutesseconds(level_end):T',
+#     ),
+#     x=alt.X('date'),
+#     color=alt.Color(
+#         'activity_level',
+#         title='Activity Level',
+#         scale=alt.Scale(
+#             domain=[
+#                 'Deep Sleep',
+#                 'Light Sleep',
+#                 'REM',
+#                 'Awake'
+#             ],
+#             range=[
+#                 '#004ba0',
+#                 '#1976d2',
+#                 '#ac06bc',
+#                 '#ed79d5',
+#             ]
+#         )
+#     ),
+#     tooltip=[
+#         alt.Tooltip('date'),
+#         alt.Tooltip('hoursminutes(level_start):T', title='Level Start'),
+#         alt.Tooltip('hoursminutes(level_end):T', title='Level End'),
+#         alt.Tooltip('activity_level', title='Activity Level'),
+#     ]
+# )
+# st.altair_chart(chart, use_container_width=True, theme='streamlit')
