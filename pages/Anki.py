@@ -7,7 +7,7 @@ from utils import find_file_id, download_file, load_css
 st.set_page_config(layout="wide")
 load_css()
 
-@st.cache(ttl=60*60*12)
+@st.cache_data(ttl=60*60*12)
 def get_anki_db():
     file_id = find_file_id("name contains 'collection.anki2'")[0]['id']
     file = download_file(file_id=file_id)
