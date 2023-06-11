@@ -50,16 +50,13 @@ col4.metric(
     delta_color='inverse'
 )
 
-# RHR plots: history and histogram
-col1, col2 = st.columns(2)
-
 # Scatterplot + weekly and monthly rolling means
-rhr_scatterplot = alt.Chart(rhr_df).mark_point(color='#FFFFFF').encode(
+rhr_scatterplot = alt.Chart(rhr_df).mark_point(color='#FFFFFF', size=2).encode(
     x=alt.Y(
         'yearmonthdate(date):T',
         title='',
         axis=alt.Axis(
-            format='%B %Y',
+            format='%m-%Y',
             tickCount='month',
             grid=True
         )
@@ -69,6 +66,7 @@ rhr_scatterplot = alt.Chart(rhr_df).mark_point(color='#FFFFFF').encode(
         title='Resting Heart Rate',
         scale=alt.Scale(zero=False)
     ),
+    size=alt.Size(scale=alt.Scale(range=[100, 100])),
     tooltip=[
         alt.Tooltip('date', title='Date'),
         alt.Tooltip('resting_heart_rate', title='RHR')
@@ -94,22 +92,22 @@ rolling_mean_chart = alt.Chart(
             ]
         ),
         legend=alt.Legend(
-            orient='bottom-left',
+            orient='top',
         )
     ),
 )
-col1.altair_chart(rhr_scatterplot + rolling_mean_chart, use_container_width=True, theme='streamlit')
+st.altair_chart(rhr_scatterplot + rolling_mean_chart, use_container_width=True, theme='streamlit')
 
 # Density plot
 rhr_histogram = alt.Chart(rhr_df).mark_bar(color='#3B97F3').encode(
     x=alt.X(
         'resting_heart_rate:N',
-        title=''
+        title='Resting Heart Rate'
         # title='Resting Heart Rate',
     ),
     y=alt.Y('count()', title='Count')
 )
-col2.altair_chart(rhr_histogram, use_container_width=True, theme='streamlit')
+st.altair_chart(rhr_histogram, use_container_width=True, theme='streamlit')
 
 # st.header('Heart Rate')
 # hr_df = get_garmin_data("""SELECT date, hr FROM heart_rate WHERE hr > 0""").copy()
