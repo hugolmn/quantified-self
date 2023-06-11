@@ -49,8 +49,9 @@ daily_steps = (steps_df
 )
 daily_steps['date'] = pd.to_datetime(daily_steps.date)
 
-steps_barplot_daily = alt.Chart(daily_steps).mark_bar(
+steps_barplot_daily = alt.Chart(daily_steps).mark_point(
     color=st.secrets["theme"]['primaryColor'],
+    size=5,
     clip=True
 ).encode(
     x=alt.X(
