@@ -10,7 +10,7 @@ from utils import download_file, find_file_id, load_css
 st.set_page_config(layout="wide")
 load_css()
 
-@st.cache(ttl=60*60*24*2)
+@st.cache_data(ttl=60*60*24*2)
 def load_podcast_addict_archive():
     file_id = find_file_id("name contains 'PodcastAddict_autoBackup'")[0]['id']
     file = download_file(file_id=file_id)
@@ -62,7 +62,7 @@ def load_podcast_df():
 def path_to_image_html(path):
     return '<img src="' + path + '" width="75" >'
 
-@st.cache
+@st.cache_data
 def convert_images_df(input_df):
     return input_df.to_html(escape=False, formatters=dict(icon=path_to_image_html))
 
