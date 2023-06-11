@@ -10,7 +10,7 @@ load_css()
 
 st.title('Finance')
 
-@st.cache(ttl=60*60*24*7)
+@st.cache_data(ttl=60*60*24*7)
 def load_dividend_data():
     file_id = find_file_id("name contains 'MSP'")[0]['id']
     csv = download_file(file_id)
