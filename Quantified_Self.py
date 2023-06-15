@@ -21,6 +21,7 @@ st.markdown(
     - <a href="/Activity" target="_self">Activity</a>: steps history.
     - <a href="/Anki" target="_self">Anki</a>: AnkiDroid revision history.
     - <a href="/Body_Stress" target="_self">Body Stress</a>: Stress level from Garmin.
+    - <a href="/Carbon_Footprint" target="_self">CO2 emissions from transportation.
     - <a href="/Fasting" target="_self">Fasting</a>: fasting history and analysis.
     - <a href="/Finance" target="_self">Finance</a>: dividends collected.
     - <a href="/Heart_Rate" target="_self">Heart Rate</a>: resting heart rate.
@@ -34,10 +35,11 @@ st.markdown(
 st.markdown("""
     ### Data sources include:
     - AnkiDroid: an app to learn vocabulary through flashcards.
-    - Spotify: listening history.
     - Garmin: biometric data collected through my watch.
+    - Google Sheets: manual collection of plane and train rides.
     - My Stock Portfolio: android app to track investments.
     - Podcast Addict: a podcast player I use since 2017.
+    - Spotify: listening history.
     - Zero : an intermittent fasting tracker.
     """,
     unsafe_allow_html=True

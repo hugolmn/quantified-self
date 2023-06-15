@@ -42,6 +42,11 @@ Data come from various sources. Ticked boxes correspond to data that can already
 ### Intermittent Fasting
 - [x] [Zero](https://play.google.com/store/apps/details?id=com.zerofasting.zero): an app I used to track my period of fasting, since July 2022.
 
+## Transportation data
+- [x] Car
+- [x] Train
+- [x] Plane
+
 ## Listening history
 - [x] [Podcast Addict](https://podcastaddict.com/): Podcast player that I use since 2017.
 - [ ] [Spotify](spotify.com/): I have a subscription since 2017.
