@@ -49,8 +49,8 @@ def load_transport(transport_name: str) -> pd.DataFrame:
     df = df[['Date', 'Distance', 'Carbon_Footprint']]
     df = df.assign(
         Date=pd.to_datetime(df.Date),
-        Distance=df.Distance.astype(float),
-        Carbon_Footprint=df.Carbon_Footprint.astype(float)
+        Distance=df.Distance.astype(float).round(),
+        Carbon_Footprint=df.Carbon_Footprint.astype(float).round()
     )
     return df.assign(Transport=transport_name)
 
@@ -66,6 +66,8 @@ chart = alt.Chart(df).mark_bar().encode(
     y=alt.Y('sum(Carbon_Footprint):Q', title='Carbon Footprint (kg CO2)'),
     color=alt.Color('Transport:N')
 )
+
+st.title('Carbon Footprint')
 
 st.altair_chart(
     chart,
