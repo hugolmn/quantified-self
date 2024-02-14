@@ -14,35 +14,11 @@ st.set_page_config(
 st.title("Quantified Self")
 st.markdown("This project aims at collecting, storing and reporting my personal data.")
 
-
-page_list = {
-    "Activity": "steps history.",
-    "Anki": "AnkiDroid revision history.",
-    "Body_Stress": "stress level from Garmin",
-    "Carbon_Footprint": "CO2 emissions from transportation.",
-    "Fasting": "fasting history and analysis.",
-    "Finance": "dividends collected.",
-    "Heart_Rate": "Resting heart rate.",
-    "Podcasts": "podcast listening history and yearly tops.",
-    "Sleep": " sleep data from Garmin.",
-    "Weight": "Weight data from Garmin.",
-}
-
-st.markdown("### Available pages:")
-
-for page in page_list:
-    st.markdown(
-        (
-            f"""- <a href="/{page}" target="_self">{page.replace('_', ' ')}</a>: """
-            f"""{page_list[page]}"""
-        ),
-        unsafe_allow_html=True,
-    )
-
-
 st.markdown(
     """
     ### Available pages:
+    - <a href="/Activity" target="_self">Activity</a>: steps history.
+    - <a href="/Anki" target="_self">Anki</a>: AnkiDroid revision history.
     - <a href="/Body_Stress" target="_self">Body Stress</a>: Stress level from Garmin.
     - <a href="/Carbon_Footprint" target="_self">Carbon Footprint</a>: CO2 emissions from transportation.
     - <a href="/Fasting" target="_self">Fasting</a>: fasting history and analysis.
