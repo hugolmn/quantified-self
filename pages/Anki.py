@@ -16,12 +16,21 @@ def get_anki_db():
     return file
 
 
-def load_anki():
+def load_anki() -> sqlite3.Connection:
+    # Download db from google drive
     anki_db = get_anki_db()
+
+    # Create data folder if not already existing
+    if not os.path.exists("data"):
+        os.makedirs("data")
+
+    # Write anki.db file from BytesIO buffer
     with open(os.path.join("data", "anki.db"), "wb") as anki_file:
         anki_file.write(anki_db.getbuffer())
 
+    # Create connection to anki.db using sqlite
     con = sqlite3.connect(os.path.join("data", "anki.db"))
+
     return con
 
 
@@ -77,29 +86,12 @@ for i, hsk_level in enumerate(hsk_df.HSK.dropna().unique()):
         label=hsk_level, value=f"{len(hsk_df_[hsk_df_.ivl == 200]) / len(hsk_df_):.0%}"
     )
 
-# hsk_chart_levels = alt.Chart(
-#     hsk_df.dropna(subset=['HSK'])
-# ).transform_density(
-#     'ivl',
-#     groupby=['HSK'],
-#     as_=['ivl', 'density'],
-#     extent=[1, 200],
-# ).mark_area().encode(
-#     x=alt.X('ivl:Q'),
-#     y=alt.Y('density:Q')
-# ).facet(
-#     # row=alt.Row('HSK')
-#     "HSK",
-#     columns=6
-# )
-
-# st.altair_chart(hsk_chart_levels, theme='streamlit')
 
 # Display metrics
 # Day changes at 3am
 history_plot = (
     alt.Chart(hsk_detailed_revlog[["id"]] - pd.Timedelta("3H"))
-    .mark_bar(color=st.secrets["theme"]["primaryColor"])
+    .mark_point(color=st.secrets["theme"]["primaryColor"], size=5, clip=True)
     .encode(
         x=alt.X(
             "yearmonthdate(id):T",
@@ -111,6 +103,7 @@ history_plot = (
 )
 st.altair_chart(history_plot, use_container_width=True, theme="streamlit")
 
+
 cumulative_hsk = hsk_detailed_revlog.drop_duplicates(subset=["cid"])
 cumulative_hsk = cumulative_hsk.dropna(subset=["HSK"])
 cumulative_hsk = cumulative_hsk.assign(
@@ -118,6 +111,16 @@ cumulative_hsk = cumulative_hsk.assign(
 )
 
 hsk_plot = (
-    alt.Chart(cumulative_hsk).mark_line().encode(x="id:T", y="cumcount:Q", color="HSK")
+    alt.Chart(cumulative_hsk)
+    .mark_line()
+    .encode(
+        x=alt.X(
+            "yearmonthdate(id):T",
+            title="",
+            axis=alt.Axis(format="%Y", tickCount="year", grid=True),
+        ),
+        y=alt.Y("cumcount:Q", title="Cumulative cards"),
+        color="HSK",
+    )
 )
 st.altair_chart(hsk_plot, use_container_width=True, theme="streamlit")
